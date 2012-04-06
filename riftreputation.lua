@@ -342,6 +342,7 @@ function rr.playershow(player)
 end
 
 function rr.broadcast()
+	--[[
 	local data
 	local t = rrvotes
 
@@ -366,24 +367,53 @@ function rr.broadcast()
 			end
 		end
 	end
+	]]--
+	local selfvotes = {}
+	local votesinline
+	local votesdata
+	local votes = rrvotes
+	selfvotes.id = rrsettings.player
+	
+	for player, voter in pairs(votes) do
+		if votes[player][rrsettings.player] ~= nil then
+			selfvotes[player] = {}
+			selfvotes[player][rrsettings.player] = votes[player][rrsettings.player]
+		end
+	end
+	--print("sent:")
+	--print(table.show(selfvotes))
+	votesinline = Utility.Serialize.Inline(selfvotes)
+	votesdata = zlib.deflate(9)(votesinline, "finish")
+	print(Utility.Message.Size(nil, "rrep", votesdata))
+	Command.Message.Broadcast("yell", nil, "rrep", votesdata)
+	
+	
 end
 
 function rr.recieve(from, type, channel, identifier, data)
-local player = ""
-local voter = ""
-local self = Inspect.Unit.Detail("player").name
-local scoretype = ""
-local test = 0
-local fromll = 0
-local fromlength = 0
-local sendname = ""
+--[[
+	local player = ""
+	local voter = ""
+	local self = Inspect.Unit.Detail("player").name
+	local scoretype = ""
+	local test = 0
+	local fromll = 0
+	local fromlength = 0
+	local sendname = ""
+]]--
 
---print("message recieved from: " .. from)
+local datainflated
+local dataload
+local voter
 
-	if rrsettings.active == true and from ~= self
+	--print("message recieved from: " .. from)
+
+
+	if rrsettings.active == true --and from ~= self
 	then
+--[[		
 		--print("bandwidth: " .. table.show(Utility.Message.Limits()))
-		data = zlib.inflate()(data, "finish")
+		datainflated = zlib.inflate()(data, "finish")
 		--print("type: " .. type)
 		--if channel then print("channel: " .. channel) end
 		--print("identifier: " .. identifier)
@@ -410,6 +440,24 @@ local sendname = ""
 		end
 		player = toname
 		voter = sendname
+]]--
+		datainflated = zlib.inflate()(data, "finish")
+		dataload = loadstring("return " .. datainflated)() 
+		--print("recieved:")
+		--print(table.show(dataload))
+		voter = dataload.id
+		dataload.id = nil
+		
+		for players, voters in pairs(dataload) do
+			--for voters, value in pairs(dataload[players]) do
+				rr.ratestore(players, voters, dataload[players][voter])
+				print("player = " .. players)
+				print("voter = " .. voter)
+				print("score = " .. dataload[players][voter])
+			--end
+		end
+		
+		
 --[[
 		print("fromlength" .. fromlength)
 		print("toth" .. toth)
@@ -420,7 +468,6 @@ local sendname = ""
 		print("message accepted")
 ]]--
 		
-		rr.ratestore(player, voter, scoretype)
 	end
 
 end
@@ -569,7 +616,7 @@ end
 
 function rr.on()
 	rrsettings.active = true
-	Command.Message.Accept("yell", "riftreputation")
+	Command.Message.Accept("yell", "rrep")
 	print("RiftReputation on")
 	--rr.ui.playerratingframe:SetVisible(true)
 	--rr.ui.targetratingframe:SetVisible(true)
@@ -580,7 +627,7 @@ end
 
 function rr.off()
 	rrsettings.active = false
-	Command.Message.Reject("yell", "riftreputation")
+	Command.Message.Reject("yell", "rrep")
 	print("RiftReputation off")
 	--rr.ui.playerratingframe:SetVisible(false)
 	--rr.ui.targetratingframe:SetVisible(false)
@@ -873,13 +920,13 @@ function rr.convert()
 	local rrvoterdataserialized
 	local rrvotesserialized
 
-	rrplayerdataserialized = Utility.Serialize.Full({rrplayerdatasave = rrplayerdata})
+	rrplayerdataserialized = Utility.Serialize.Inline(rrplayerdata)
 	RiftReputation_playerdata = zlib.deflate()(rrplayerdataserialized, "finish")
 
-	rrvoterdataserialized = Utility.Serialize.Full({rrvoterdatasave = rrvoterdata})
+	rrvoterdataserialized = Utility.Serialize.Inline(rrvoterdata)
 	RiftReputation_voterdata = zlib.deflate()(rrvoterdataserialized, "finish")
 	
-	rrvotesserialized = Utility.Serialize.Full({rrvotessave = rrvotes})
+	rrvotesserialized = Utility.Serialize.Inline(rrvotes)
 	RiftReputation_votes = zlib.deflate()(rrvotesserialized, "finish")
 
 end
@@ -896,28 +943,25 @@ function rr.unconvert()
 	if RiftReputation_playerdata and rrplayerdata ~= nil
 	then
 		rrplayerdatauncompress  = zlib.inflate()(RiftReputation_playerdata, "finish")
-		rrplayerdataload = loadstring(rrplayerdatauncompress .. " return rrplayerdatasave")
-		rrplayerdata = rrplayerdataload()
-		--print("player data:")
-		--print(table.show(rrplayerdata))
+		rrplayerdata = loadstring("return rrplayerdata")()
+		print("player data:")
+		print(table.show(rrplayerdata))
 	end
 	
 	if RiftReputation_voterdata and rrvoterdata ~= nil
 	then
 		rrvoterdatauncompress  = zlib.inflate()(RiftReputation_voterdata, "finish")
-		rrvoterdataload = loadstring(rrvoterdatauncompress .. " return rrvoterdatasave")
-		rrvoterdata = rrvoterdataload()
-		--print("voter data:")
-		--print(table.show(rrvoterdata))
+		rrvoterdata = loadstring("return rrvoterdata")()
+		print("voter data:")
+		print(table.show(rrvoterdata))
 	end
 	
 	if RiftReputation_votes and rrvotes ~= nil
 	then
 		rrvotesuncompress  = zlib.inflate()(RiftReputation_votes, "finish")
-		rrvotesload = loadstring(rrvotesuncompress .. " return rrvotessave")
-		rrvotes = rrvotesload()
-		--print("vote histories:")
-		--print(table.show(rrvotes))
+		rrvotes = loadstring("return rrvotes")()
+		print("vote histories:")
+		print(table.show(rrvotes))
 	end
 	--test
 
