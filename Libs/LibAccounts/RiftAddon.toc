@@ -1,0 +1,31 @@
+Identifier = "LibAccounts"
+
+Version = "0.3-120107-00:11:35"
+
+Email = "seebs@seebs.net"
+
+Name = {
+  English = "LibAccounts",
+  French = "LibAccounts",
+  German = "LibAccounts",
+}
+Dependencies = { LibGetOpt = { "required", "before" } }
+Embed = { LibGetOpt = true }
+NameShort = "LibAccounts"
+
+Description = {
+  English = "A library providing account identification tools"
+}
+
+-- behold the subtle nuances!
+SavedVariables = {
+  LibAccountsGlobal = "global",
+  LibAccountsAccount = "account",
+}
+
+RunOnStartup = {
+  "LibAccounts.lua"
+}
+
+Environment = { "1.5", "1.6" }
+

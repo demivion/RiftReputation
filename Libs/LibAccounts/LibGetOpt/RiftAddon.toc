@@ -1,0 +1,23 @@
+Identifier = "LibGetOpt"
+
+Version = "0.7-120107-00:09:33"
+
+Email = "seebs@seebs.net"
+
+Name = {
+  English = "LibGetOpt",
+  French = "LibGetOpt",
+  German = "LibGetOpt",
+}
+NameShort = "GetOpt"
+
+Description = {
+  English = "A library providing functionality similar to Unix getopt()"
+}
+
+RunOnStartup = {
+  "LibGetOpt.lua"
+}
+
+Environment = { "1.5", "1.6" }
+
