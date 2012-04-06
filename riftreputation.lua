@@ -373,15 +373,15 @@ function rr.broadcast()
 	local votesdata
 	local votes = rrvotes
 	selfvotes.id = rrsettings.player
-	--test
+
 	for player, voter in pairs(votes) do
 		if votes[player][rrsettings.player] ~= nil then
-			selfvotes[player] = {}
-			selfvotes[player][rrsettings.player] = votes[player][rrsettings.player]
+			selfvotes[rrsettings.player] = {}
+			selfvotes[rrsettings.player][player] = votes[player][rrsettings.player]
 		end
 	end
-	--print("sent:")
-	--print(table.show(selfvotes))
+	print("sent:")
+	print(table.show(selfvotes))
 	votesinline = Utility.Serialize.Inline(selfvotes)
 	votesdata = zlib.deflate(9)(votesinline, "finish")
 	print(Utility.Message.Size(nil, "rrep", votesdata))
@@ -443,17 +443,17 @@ local voter
 ]]--
 		datainflated = zlib.inflate()(data, "finish")
 		dataload = loadstring("return " .. datainflated)() 
-		--print("recieved:")
-		--print(table.show(dataload))
-		voter = dataload.id
+		print("recieved:")
+		print(table.show(dataload))
+		sender = dataload.id
 		dataload.id = nil
 		
-		for players, voters in pairs(dataload) do
+		for players, value  in pairs(dataload[sender]) do
 			--for voters, value in pairs(dataload[players]) do
-				rr.ratestore(players, voters, dataload[players][voter])
+				rr.ratestore(players, voters, value)
 				print("player = " .. players)
-				print("voter = " .. voter)
-				print("score = " .. dataload[players][voter])
+				print("voter = " .. sender)
+				print("score = " .. value)
 			--end
 		end
 		
