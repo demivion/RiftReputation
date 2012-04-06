@@ -373,7 +373,7 @@ function rr.broadcast()
 	local votesdata
 	local votes = rrvotes
 	selfvotes.id = rrsettings.player
-	
+	--test
 	for player, voter in pairs(votes) do
 		if votes[player][rrsettings.player] ~= nil then
 			selfvotes[player] = {}
