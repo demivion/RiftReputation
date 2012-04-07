@@ -661,6 +661,7 @@ function rr.ui.update()
 			rrplayerdata[target].neutralpercent = (rrplayerdata[target].neutralscore / total)
 			barxoffset = 100 * ((.5 * rrplayerdata[target].neutralpercent) + rrplayerdata[target].uppercent)
 			votes = (rrplayerdata[target].numuprecieved + rrplayerdata[target].numdownrecieved + rrplayerdata[target].numneutralrecieved - 3)
+			if votes < 0 then votes = 0 end
 			end
 			rr.ui.targetvotesframe:SetText("Total Votes: " .. votes)
 			rr.ui.barindicator:SetPoint("CENTER", rr.ui.barbackground, "CENTERLEFT", barxoffset, 0)
