@@ -54,7 +54,7 @@ function rr.addonloaded(addon)
 	if (addon == "RiftReputation") then
 
 		rr.printversion()
-		rr.variablestest()
+		--rr.variablestest()
 		rr.unconvert()
 		--rr.ui.create()
 		
@@ -94,9 +94,9 @@ function rr.variablestest(player)
 	if rrplayerdata[player] == nil 
 	then
 		rrplayerdata[player] = {	
-			upscore = 0,
-			downscore = 0,
-			neutralscore = 0,
+			upscore = 1,
+			downscore = 1,
+			neutralscore = 1,
 			numuprecieved = 0,
 			numdownrecieved = 0,
 			numneutralrecieved = 0,
@@ -108,9 +108,9 @@ function rr.variablestest(player)
 	if rrvoterdata[player] == nil 
 	then
 		rrvoterdata[player] = {		
-			upgiven = 0,
-			downgiven = 0,
-			neutralgiven = 0,
+			upgiven = 1,
+			downgiven = 1,
+			neutralgiven = 1,
 			upscoreweight = 0,
 			nuscoreweight = 0,
 			downscoreweight = 0,
@@ -157,9 +157,9 @@ end
 
 function rr.ratestore(player, voter, scoretype)
 	
-	local upgiven = 0
-	local neutralgiven = 0
-	local downgiven = 0
+	local upgiven = 1
+	local neutralgiven = 1
+	local downgiven = 1
 	local uprecieved = 0
 	local downrecieved = 0
 	local neutralrecieved = 0
@@ -177,17 +177,10 @@ function rr.ratestore(player, voter, scoretype)
 	then
 		rrvotes[player] = {}
 	end
-	if rrvotes[player][voter] == nil 
-	then
-		rrvotes[player][voter] = ""
-	end
 	
 	rrvotes[player][voter] = scoretype
 	
-
 	
-	
-
 	for player, voter in pairs(rrvotes) do
 		
 		uprecieved = 0
@@ -210,13 +203,13 @@ function rr.ratestore(player, voter, scoretype)
 		rrplayerdata[player].numuprecieved = uprecieved
 		rrplayerdata[player].numneutralrecieved = neutralrecieved
 		rrplayerdata[player].numdownrecieved = downrecieved
-		
-	end
+
+	end	
 
 	rrvoterdata[voter].upgiven = upgiven
 	rrvoterdata[voter].neutralgiven = neutralgiven
-	rrvoterdata[voter].downgiven = downgiven 
-
+	rrvoterdata[voter].downgiven = downgiven
+	
 
 	for player, voter in pairs(rrvotes) do
 		
@@ -227,30 +220,6 @@ function rr.ratestore(player, voter, scoretype)
 		
 		for voter, value in pairs(rrvotes[player]) do
 			
-			if rrvoterdata[voter].upgiven == 0 
-			then
-			rrvoterdata[voter].upgiven = 1
-			end
-			
-			if rrvoterdata[voter].neutralgiven == 0 
-			then
-			rrvoterdata[voter].neutralgiven = 1
-			end
-			
-			if rrvoterdata[voter].downgiven == 0 
-			then
-			rrvoterdata[voter].downgiven = 1
-			end
-			
-			if rrplayerdata[voter].upscore == 0 
-			then
-			rrplayerdata[voter].upscore = 1
-			end
-			
-			if rrplayerdata[voter].downscore == 0 
-			then
-			rrplayerdata[voter].downscore = 1
-			end			
 			--print(rrplayerdata[voter].downscore .. "downscore")
 			--print(rrplayerdata[voter].upscore .. "upscore")
 			--print(rrvoterdata[voter].downgiven .. "downgiven")
@@ -283,7 +252,7 @@ function rr.ratestore(player, voter, scoretype)
 			rrplayerdata[player].uppercent = (rrplayerdata[player].upscore / total)
 			rrplayerdata[player].neutralpercent = (rrplayerdata[player].neutralscore / total)
 			rrplayerdata[player].downpercent = (rrplayerdata[player].downscore / total)
-		
+			
 	end
 
 
@@ -307,7 +276,7 @@ end
 function rr.rateshow()
 
 print(table.show(rrplayerdata))
-
+print(table.show(rrvoterdata))
 end
 
 function rr.playershow(player)
@@ -439,7 +408,7 @@ function rr.slash(params)
 			local voter = Inspect.Unit.Detail("player").name
 			local player = Inspect.Unit.Detail("player.target").name
 			local scoretype = string.lower(args[1])
-			print(scoretype)
+			--print(scoretype)
 			if player == voter 
 			then 
 				print("Sorry! No self-votes allowed :P")
@@ -449,6 +418,7 @@ function rr.slash(params)
 			elseif Inspect.Unit.Detail("player").level ~= 50
 			then
 				Print("Can only vote if you are level 50")
+			
 			else
 				if scoretype == "up" then 
 					rr.ratestore(player, voter, "up")
@@ -463,42 +433,6 @@ function rr.slash(params)
 					print("Vote up neutral or down only")
 				end
 			end
-				
-		elseif args[0] == "vote" and argnumber == 3 
-		then
-			
-			local voter = Inspect.Unit.Detail("player").name
-			local player = args[1]:gsub("^%l", string.upper)
-			local scoretype = string.lower(args[2])
-			print(scoretype)
-			
-			if player == voter 
-			then 
-				print("Sorry! No self-votes allowed :P")
-			--elseif not Inspect.Unit.Detail(player)
-			--then
-			--	Print("Must be a legitimate player")
-			--elseif Inspect.Unit.Detail(player).level ~= 50
-			--then
-			--	Print("Can only vote for level 50 players")
-			elseif Inspect.Unit.Detail("player").level ~= 50
-			then
-				Print("Can only vote if you are level 50")
-			else
-				if scoretype == "up" then 
-					rr.ratestore(player, voter, "up")
-					print("You gave " .. player .. " a Positive vote!")
-				elseif scoretype == "neutral" then
-					rr.ratestore(player, voter, "neutral")
-					print("You gave " .. player .. " a Neutral vote!")
-				elseif scoretype == "down" then
-					rr.ratestore(player, voter, "down")
-					print("You gave " .. player .. " a Negative vote!")
-				else
-					print("Vote up neutral or down only")
-				end
-			end
-		
 		end
 	
 		if args[0] == "lock"
@@ -841,7 +775,6 @@ function round(num, idp)
   return tonumber(string.format("%." .. (idp or 0) .. "f", num))
 end
 
-
 function rr.convert()
 
 	local rrplayerdatadataserialized
@@ -872,27 +805,26 @@ function rr.unconvert()
 	then
 		rrplayerdatauncompress  = zlib.inflate()(RiftReputation_playerdata, "finish")
 		rrplayerdata = loadstring("return rrplayerdata")()
-		print("player data:")
-		print(table.show(rrplayerdata))
+		--print("player data:")
+		--print(table.show(rrplayerdata))
 	end
 	
 	if RiftReputation_voterdata and rrvoterdata ~= nil
 	then
 		rrvoterdatauncompress  = zlib.inflate()(RiftReputation_voterdata, "finish")
 		rrvoterdata = loadstring("return rrvoterdata")()
-		print("voter data:")
-		print(table.show(rrvoterdata))
+		--print("voter data:")
+		--print(table.show(rrvoterdata))
 	end
 	
 	if RiftReputation_votes and rrvotes ~= nil
 	then
 		rrvotesuncompress  = zlib.inflate()(RiftReputation_votes, "finish")
 		rrvotes = loadstring("return rrvotes")()
-		print("vote histories:")
-		print(table.show(rrvotes))
+		--print("vote histories:")
+		--print(table.show(rrvotes))
 	end
-	--test
-
+	
 end
 
 function test()
