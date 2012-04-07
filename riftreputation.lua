@@ -84,12 +84,38 @@ function rr.printversion()
 	print("RiftReputation v" .. rr.version .. " loaded /rr for options.")
 end
 
-function rr.variablestest()
+function rr.variablestest(player)
 	if not rrplayerdata then rrplayerdata = {} end
 	if not rrvoterdata then rrvoterdata = {} end
 	if not rrplayeraverage then rrplayeraverage = {} end
 	if not rrsettings then rrsettings = {} end
 	if not rrvotes then rrvotes = {} end
+	
+	if rrplayerdata[player] == nil 
+	then
+		rrplayerdata[player] = {	
+			upscore = 0,
+			downscore = 0,
+			neutralscore = 0,
+			numuprecieved = 0,
+			numdownrecieved = 0,
+			numneutralrecieved = 0,
+			uppercent = 0,
+			downpercent = 0,
+			neutralpercent = 0,
+		}
+	end
+	if rrvoterdata[player] == nil 
+	then
+		rrvoterdata[player] = {		
+			upgiven = 0,
+			downgiven = 0,
+			neutralgiven = 0,
+			upscoreweight = 0,
+			nuscoreweight = 0,
+			downscoreweight = 0,
+		}
+	end
 end
 
 function rr.onupdate()
@@ -130,57 +156,18 @@ function rr.onupdate()
 end
 
 function rr.ratestore(player, voter, scoretype)
-	rr.variablestest()
-	if rrplayerdata[player] == nil 
-	then
-		rrplayerdata[player] = {	
-			upscore = 0,
-			downscore = 0,
-			neutralscore = 0,
-			numuprecieved = 0,
-			numdownrecieved = 0,
-			numneutralrecieved = 0,
-			uppercent = 0,
-			downpercent = 0,
-			neutralpercent = 0,
-		}
-	end
-	if rrvoterdata[player] == nil 
-	then
-		rrvoterdata[player] = {		
-			upgiven = 0,
-			downgiven = 0,
-			neutralgiven = 0,
-			upscoreweight = 0,
-			nuscoreweight = 0,
-			downscoreweight = 0,
-		}
-	end
-	if rrplayerdata[voter] == nil 
-	then
-		rrplayerdata[voter] = {	
-			upscore = 0,
-			downscore = 0,
-			neutralscore = 0,
-			numuprecieved = 0,
-			numdownrecieved = 0,
-			numneutralrecieved = 0,
-			uppercent = 0,
-			downpercent = 0,
-			neutralpercent = 0,
-		}
-	end
-	if rrvoterdata[voter] == nil 
-	then
-		rrvoterdata[voter] = {		
-			upgiven = 0,
-			downgiven = 0,
-			neutralgiven = 0,
-			upscoreweight = 0,
-			nuscoreweight = 0,
-			downscoreweight = 0,
-		}
-	end
+	
+	local upgiven = 0
+	local neutralgiven = 0
+	local downgiven = 0
+	local uprecieved = 0
+	local downrecieved = 0
+	local neutralrecieved = 0
+	local total = 0
+	
+	rr.variablestest(player)
+	rr.variablestest(voter)
+		
 	
 	if rrvotes == nil 
 	then
@@ -195,15 +182,11 @@ function rr.ratestore(player, voter, scoretype)
 		rrvotes[player][voter] = ""
 	end
 	
-	local upgiven = 0
-	local neutralgiven = 0
-	local downgiven = 0
-	local uprecieved = 0
-	local downrecieved = 0
-	local neutralrecieved = 0
-	local total = 0
-	
 	rrvotes[player][voter] = scoretype
+	
+
+	
+	
 
 	for player, voter in pairs(rrvotes) do
 		
@@ -342,46 +325,41 @@ function rr.playershow(player)
 end
 
 function rr.broadcast()
-	--[[
-	local data
-	local t = rrvotes
 
-	local fromlength = 0
-	local fromll = 0
-	
-	
-	if rrsettings.active == true 
-	then
-		for k,v in pairs(t) do
-
-			fth = string.len(rrsettings.player)
-			fll = string.len(fth)
-			kth = string.len(k)
-			kll = string.len(kth)
-
-			if rrvotes[k][Inspect.Unit.Detail("player").name] ~= nil 
-			then
-				data = zlib.deflate()(tostring(string.sub(rrvotes[k][Inspect.Unit.Detail("player").name], 1, 1) .. fll .. fth .. rrsettings.player .. kll .. kth .. k), "finish")
-				Command.Message.Broadcast("yell", nil, "riftreputation", data)
-				--print("broadcasted: " .. data)
-			end
-		end
-	end
-	]]--
 	local selfvotes = {}
 	local votesinline
 	local votesdata
+	local testinline
+	local testdata
 	local votes = rrvotes
+	local size
+	
 	selfvotes.id = rrsettings.player
-
 	for player, voter in pairs(votes) do
+		
 		if votes[player][rrsettings.player] ~= nil then
-			selfvotes[rrsettings.player] = {}
+			
+			if selfvotes[rrsettings.player] == nil then
+				selfvotes[rrsettings.player] = {}
+			end
+			
 			selfvotes[rrsettings.player][player] = votes[player][rrsettings.player]
+				
+			testinline = Utility.Serialize.Inline(selfvotes)
+			testdata = zlib.deflate(9)(testinline, "finish")
+			size = Utility.Message.Size(nil, "rrep", testdata)
+			
+			if size >= 1000 then
+				Command.Message.Broadcast("yell", nil, "rrep", testdata)
+				selfvotes[rrsettings.player] = {}
+				print("sent split of size " .. size)
+			end		
+		
 		end
+	
 	end
-	print("sent:")
-	print(table.show(selfvotes))
+	--print("sent:")
+	--print(table.show(selfvotes))
 	votesinline = Utility.Serialize.Inline(selfvotes)
 	votesdata = zlib.deflate(9)(votesinline, "finish")
 	print(Utility.Message.Size(nil, "rrep", votesdata))
@@ -391,16 +369,6 @@ function rr.broadcast()
 end
 
 function rr.recieve(from, type, channel, identifier, data)
---[[
-	local player = ""
-	local voter = ""
-	local self = Inspect.Unit.Detail("player").name
-	local scoretype = ""
-	local test = 0
-	local fromll = 0
-	local fromlength = 0
-	local sendname = ""
-]]--
 
 local datainflated
 local dataload
@@ -411,63 +379,23 @@ local voter
 
 	if rrsettings.active == true --and from ~= self
 	then
---[[		
-		--print("bandwidth: " .. table.show(Utility.Message.Limits()))
-		datainflated = zlib.inflate()(data, "finish")
-		--print("type: " .. type)
-		--if channel then print("channel: " .. channel) end
-		--print("identifier: " .. identifier)
-		--print("data: " .. data)
-		--print("test: " .. test)
-			
-		scoretype = string.sub(data, 1,1)
-		fromll = tonumber(string.sub(data, 2, 2))
-		fromlength = tonumber(string.sub(data, 3, (3 + fromll - 1)))		
-		sendname = string.sub(data, (3 + fromll), (3 + fromll + fromlength -1))
-		toll = string.sub(data, (3 + fromll + fromlength), (3 + fromll + fromlength))
-		toth = string.sub(data, (3 + fromll + fromlength + 1), (3 + fromll + fromlength + toll))
-		toname = string.sub(data, (3 + fromll + fromlength + toll +1), (3 + fromll + fromlength + toll + toth))
-		
-		if scoretype == "u"
-		then
-			scoretype = "up"
-		elseif scoretype == "d"
-		then
-			scoretype = "down"
-		elseif scoretype == "n"
-		then
-			scoretype = "neutral"
-		end
-		player = toname
-		voter = sendname
-]]--
 		datainflated = zlib.inflate()(data, "finish")
 		dataload = loadstring("return " .. datainflated)() 
-		print("recieved:")
-		print(table.show(dataload))
+		--print("recieved:")
+		--print(table.show(dataload))
 		sender = dataload.id
+		--print("sender = " .. sender)
 		dataload.id = nil
-		
-		for players, value  in pairs(dataload[sender]) do
-			--for voters, value in pairs(dataload[players]) do
-				rr.ratestore(players, voters, value)
-				print("player = " .. players)
-				print("voter = " .. sender)
-				print("score = " .. value)
-			--end
+		if dataload ~= nil and dataload[sender] ~= nil then
+			for players, value  in pairs(dataload[sender]) do
+				--for voters, value in pairs(dataload[players]) do
+					rr.ratestore(players, sender, value)
+					print("player = " .. players)
+					print("voter = " .. sender)
+					print("score = " .. value)
+				--end
+			end
 		end
-		
-		
---[[
-		print("fromlength" .. fromlength)
-		print("toth" .. toth)
-		print("message: " .. data)
-		print("player = " .. player)
-		print("voter = " .. sendname)
-		print("score = " .. scoretype)
-		print("message accepted")
-]]--
-		
 	end
 
 end
