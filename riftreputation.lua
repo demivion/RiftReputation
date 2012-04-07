@@ -121,10 +121,10 @@ end
 function rr.onupdate()
 	local now = Inspect.Time.Frame()
 	
-	if now - rr.lastbroadcast < 5 
+	if now - rr.lastbroadcast < 15 
 	then
 		rr.needsbroadcast = false
-	elseif now - rr.lastbroadcast >= 5 
+	elseif now - rr.lastbroadcast >= 15 
 	then
 		rr.needsbroadcast = true		
 	end
@@ -220,31 +220,19 @@ function rr.ratestore(player, voter, scoretype)
 		
 		for voter, value in pairs(rrvotes[player]) do
 			
-			--print(rrplayerdata[voter].downscore .. "downscore")
-			--print(rrplayerdata[voter].upscore .. "upscore")
-			--print(rrvoterdata[voter].downgiven .. "downgiven")
-			--print(rrvoterdata[voter].upgiven .. "upgiven")
-			--print(rrvoterdata[voter].neutralgiven .. "neutralgiven")			
 			rrvoterdata[voter].upscoreweight = (((.3*rrvoterdata[voter].neutralgiven + .3*rrvoterdata[voter].downgiven)/rrvoterdata[voter].upgiven^.85)*(rrplayerdata[voter].upscore/rrplayerdata[voter].downscore)^(1/6))^(1/2.2)
-			--rrvoterdata[voter].neutralscoreweight = ((rrvoterdata[voter].upgiven + rrvoterdata[voter].downgiven)/rrvoterdata[voter].neutralgiven)*(rrplayerdata[voter].upscore/rrplayerdata[voter].downscore)
 			rrvoterdata[voter].neutralscoreweight = 1
 			rrvoterdata[voter].downscoreweight = (((.3*rrvoterdata[voter].upgiven + .3*rrvoterdata[voter].neutralgiven)/rrvoterdata[voter].downgiven^1.25)*(rrplayerdata[voter].upscore/rrplayerdata[voter].downscore)^(1/6))^(1/2.2)
-			--print(rrvoterdata[voter].upscoreweight .. "up score weight")
-			--print(rrvoterdata[voter].downscoreweight .. "down score weight")
-			--print(rrvoterdata[voter].neutralscoreweight .. "neutral score weight")
+			
+			if rrvoterdata[voter].upscoreweight > 3 then rrvoterdata[voter].upscoreweight = 3 end
+			if rrvoterdata[voter].downscoreweight > 3 then rrvoterdata[voter].upscoreweight = 3 end
 			
 			if rrvotes[player][voter] == "1" then
-				--print(rrplayerdata[player].upscore .. player .. " up increased by " .. rrvoterdata[voter].upscoreweight .. voter)
 				rrplayerdata[player].upscore = rrplayerdata[player].upscore + rrvoterdata[voter].upscoreweight
-				--print(player .. "'s score = " .. rrplayerdata[player].upscore)
 			elseif rrvotes[player][voter] == "2" then
-				--print(rrplayerdata[player].neutralscore .. player .. " neutralincreased by " .. rrvoterdata[voter].neutralscoreweight .. voter)
 				rrplayerdata[player].neutralscore = rrplayerdata[player].neutralscore + rrvoterdata[voter].neutralscoreweight
-				--print(player .. "'s score = " .. rrplayerdata[player].neutralscore)			
 			elseif rrvotes[player][voter] == "3" then
-				--print(rrplayerdata[player].downscore .. player .. " down increased by " .. rrvoterdata[voter].downscoreweight .. voter)
 				rrplayerdata[player].downscore = rrplayerdata[player].downscore + rrvoterdata[voter].downscoreweight
-				--print(player .. "'s score = " .. rrplayerdata[player].downscore)
 			end
 		end	
 			
