@@ -188,13 +188,13 @@ function rr.ratestore(player, voter, scoretype)
 		downrecieved = 0
 		
 		for voter, value in pairs(rrvotes[player]) do
-			if value == "up" then
+			if value == "1" then
 				upgiven = upgiven + 1
 				uprecieved = uprecieved +1
-			elseif value == "neutral" then
+			elseif value == "2" then
 				neutralgiven = neutralgiven + 1
 				neutralrecieved = neutralrecieved + 1
-			elseif value == "down" then
+			elseif value == "3" then
 				downgiven = downgiven + 1
 				downrecieved = downrecieved + 1
 			end
@@ -233,15 +233,15 @@ function rr.ratestore(player, voter, scoretype)
 			--print(rrvoterdata[voter].downscoreweight .. "down score weight")
 			--print(rrvoterdata[voter].neutralscoreweight .. "neutral score weight")
 			
-			if rrvotes[player][voter] == "up" then
+			if rrvotes[player][voter] == "1" then
 				--print(rrplayerdata[player].upscore .. player .. " up increased by " .. rrvoterdata[voter].upscoreweight .. voter)
 				rrplayerdata[player].upscore = rrplayerdata[player].upscore + rrvoterdata[voter].upscoreweight
 				--print(player .. "'s score = " .. rrplayerdata[player].upscore)
-			elseif rrvotes[player][voter] == "neutral" then
+			elseif rrvotes[player][voter] == "2" then
 				--print(rrplayerdata[player].neutralscore .. player .. " neutralincreased by " .. rrvoterdata[voter].neutralscoreweight .. voter)
 				rrplayerdata[player].neutralscore = rrplayerdata[player].neutralscore + rrvoterdata[voter].neutralscoreweight
 				--print(player .. "'s score = " .. rrplayerdata[player].neutralscore)			
-			elseif rrvotes[player][voter] == "down" then
+			elseif rrvotes[player][voter] == "3" then
 				--print(rrplayerdata[player].downscore .. player .. " down increased by " .. rrvoterdata[voter].downscoreweight .. voter)
 				rrplayerdata[player].downscore = rrplayerdata[player].downscore + rrvoterdata[voter].downscoreweight
 				--print(player .. "'s score = " .. rrplayerdata[player].downscore)
@@ -256,21 +256,6 @@ function rr.ratestore(player, voter, scoretype)
 	end
 
 
-end
-
-function rr.average(data)
-	local sum = 0
-	local count = 0
-	--local tempaverage = data.averagerating
-	--data.averagerating = nil
-	for k,v in pairs(data) do
-		if type(v) == 'number' then
-			sum = sum + v
-			count = count + 1
-		end
-	end
-	--data.averagerating = tempaverage
-	return (sum / count)
 end
 
 function rr.rateshow()
@@ -315,7 +300,7 @@ function rr.broadcast()
 			selfvotes[rrsettings.player][player] = votes[player][rrsettings.player]
 				
 			testinline = Utility.Serialize.Inline(selfvotes)
-			testdata = zlib.deflate(9)(testinline, "finish")
+			testdata = zlib.deflate(9)(string.reverse(testinline), "finish")
 			size = Utility.Message.Size(nil, "rrep", testdata)
 			
 			if size >= 1000 then
@@ -330,7 +315,7 @@ function rr.broadcast()
 	--print("sent:")
 	--print(table.show(selfvotes))
 	votesinline = Utility.Serialize.Inline(selfvotes)
-	votesdata = zlib.deflate(9)(votesinline, "finish")
+	votesdata = zlib.deflate(9)(string.reverse(votesinline), "finish")
 	print(Utility.Message.Size(nil, "rrep", votesdata))
 	Command.Message.Broadcast("yell", nil, "rrep", votesdata)
 	
@@ -348,7 +333,7 @@ local voter
 
 	if rrsettings.active == true --and from ~= self
 	then
-		datainflated = zlib.inflate()(data, "finish")
+		datainflated = string.reverse(zlib.inflate()(data, "finish"))
 		dataload = loadstring("return " .. datainflated)() 
 		--print("recieved:")
 		--print(table.show(dataload))
@@ -414,19 +399,22 @@ function rr.slash(params)
 				print("Sorry! No self-votes allowed :P")
 			elseif Inspect.Unit.Detail("player.target").level ~= 50
 			then
-				Print("Can only vote for level 50 players")
+				print("You can only vote for level 50 players")
 			elseif Inspect.Unit.Detail("player").level ~= 50
 			then
-				Print("Can only vote if you are level 50")
-			
+				print("You can only vote if you are level 50")
+			elseif string.find(player, "@") ~= nil then
+				print("You can only vote for players on your own shard")
+			elseif Inspect.Unit.Detail("player.target").faction ~= Inspect.Unit.Detail("player").faction then
+				print("You can only vote for players of your faction")
 			else
 				if scoretype == "up" then 
-					rr.ratestore(player, voter, "up")
+					rr.ratestore(player, voter, "1")
 					print("You gave " .. player .. " a Positive vote!")
 				elseif scoretype == "neutral" then
-					rr.ratestore(player, voter, "neutral")
+					rr.ratestore(player, voter, "2")
 					print("You gave " .. player .. " a Neutral vote!")
-				elseif scoretype == "down" then
+				elseif scoretype == "3" then
 					rr.ratestore(player, voter, down)
 					print("You gave " .. player .. " a Negative vote!")
 				else
@@ -773,6 +761,21 @@ end
 
 function round(num, idp)
   return tonumber(string.format("%." .. (idp or 0) .. "f", num))
+end
+
+function rr.average(data)
+	local sum = 0
+	local count = 0
+	--local tempaverage = data.averagerating
+	--data.averagerating = nil
+	for k,v in pairs(data) do
+		if type(v) == 'number' then
+			sum = sum + v
+			count = count + 1
+		end
+	end
+	--data.averagerating = tempaverage
+	return (sum / count)
 end
 
 function rr.convert()
