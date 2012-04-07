@@ -299,8 +299,8 @@ function rr.broadcast()
 		end
 	
 	end
-	print("sent:")
-	print(table.show(selfvotes))
+	--print("sent:")
+	--print(table.show(selfvotes))
 	votesinline = Utility.Serialize.Inline(selfvotes)
 	votesdata = zlib.deflate(9)(votesinline, "finish")
 	--print(Utility.Message.Size(nil, "rrep", votesdata))
@@ -330,7 +330,7 @@ local voter
 		if dataload ~= nil and dataload[from] ~= nil then
 			for players, value  in pairs(dataload[from]) do
 				--for voters, value in pairs(dataload[players]) do
-				if value >= 1 and value <= 3 then
+				if value == 1 or value == 2 or value == 3 then
 					rr.ratestore(players, from, value)
 					--print("player = " .. players)
 					--print("voter = " .. from)
