@@ -9,6 +9,7 @@ riftreputation = {
 	ui = {},
 	version = 001,
 	updateindex = 0,
+	incombat = false,
 }
 local rr = riftreputation
 
@@ -155,6 +156,16 @@ function rr.onupdate()
 
 end
 
+function rr.entercombat()
+	rr.incombat = true
+	Command.Message.Reject("yell", "rrep")
+end
+
+function rr.leavecombat()
+	rr.incombat = false
+	Command.Message.Accept("yell", "rrep")
+end
+
 function rr.ratestore(player, voter, scoretype)
 	
 	local upgiven = 1
@@ -267,46 +278,46 @@ function rr.playershow(player)
 end
 
 function rr.broadcast()
-
-	local selfvotes = {}
-	local votesinline
-	local votesdata
-	local testinline
-	local testdata
-	local votes = rrvotes
-	local size
-	
-	--selfvotes.id = rrsettings.player
-	for player, voter in pairs(votes) do
+	if rr.incombat == false then
+		local selfvotes = {}
+		local votesinline
+		local votesdata
+		local testinline
+		local testdata
+		local votes = rrvotes
+		local size
 		
-		if votes[player][rrsettings.player] ~= nil then
+		--selfvotes.id = rrsettings.player
+		for player, voter in pairs(votes) do
 			
-			if selfvotes[rrsettings.player] == nil then
-				selfvotes[rrsettings.player] = {}
-			end
-			
-			selfvotes[rrsettings.player][player] = votes[player][rrsettings.player]
+			if votes[player][rrsettings.player] ~= nil then
 				
-			testinline = Utility.Serialize.Inline(selfvotes)
-			testdata = zlib.deflate(9)(testinline, "finish")
-			size = Utility.Message.Size(nil, "rrep", testdata)
+				if selfvotes[rrsettings.player] == nil then
+					selfvotes[rrsettings.player] = {}
+				end
+				
+				selfvotes[rrsettings.player][player] = votes[player][rrsettings.player]
+					
+				testinline = Utility.Serialize.Inline(selfvotes)
+				testdata = zlib.deflate(9)(testinline, "finish")
+				size = Utility.Message.Size(nil, "rrep", testdata)
+				
+				if size >= 1000 then
+					Command.Message.Broadcast("yell", nil, "rrep", testdata)
+					selfvotes[rrsettings.player] = {}
+					--print("sent split of size " .. size)
+				end		
 			
-			if size >= 1000 then
-				Command.Message.Broadcast("yell", nil, "rrep", testdata)
-				selfvotes[rrsettings.player] = {}
-				--print("sent split of size " .. size)
-			end		
+			end
 		
 		end
-	
+		--print("sent:")
+		--print(table.show(selfvotes))
+		votesinline = Utility.Serialize.Inline(selfvotes)
+		votesdata = zlib.deflate(9)(votesinline, "finish")
+		--print(Utility.Message.Size(nil, "rrep", votesdata))
+		Command.Message.Broadcast("yell", nil, "rrep", votesdata)
 	end
-	--print("sent:")
-	--print(table.show(selfvotes))
-	votesinline = Utility.Serialize.Inline(selfvotes)
-	votesdata = zlib.deflate(9)(votesinline, "finish")
-	--print(Utility.Message.Size(nil, "rrep", votesdata))
-	Command.Message.Broadcast("yell", nil, "rrep", votesdata)
-	
 	
 end
 
