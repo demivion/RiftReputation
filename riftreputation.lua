@@ -20,8 +20,8 @@ local defaults = {
 	active = true,
 	ui_x = 650,
 	ui_y = 810,
-	ui_xt = 1070,
-	ui_yt = 810,
+	ui_x2 = 1070,
+	ui_y2 = 810,
 	locked = false,
 	player = Inspect.Unit.Detail("player").name,
 }
@@ -56,6 +56,7 @@ function rr.addonloaded(addon)
 		--rr.variablestest()
 		rr.unconvert()
 		rr.ui.create()
+		rr.ui.createsearch()
 		
 		table.insert(Event.System.Update.Begin, 		{rr.onupdate, 		"RiftReputation", "OnUpdate" })
 		rr.updateindex = #Event.System.Update.Begin		
@@ -456,8 +457,21 @@ function rr.on()
 	rrsettings.active = true
 	Command.Message.Accept("yell", "rrep")
 	print("RiftReputation on")
-	--rr.ui.playerratingframe:SetVisible(true)
-	--rr.ui.targetratingframe:SetVisible(true)
+		rr.ui.backgroundframe:SetVisible(true)
+		rr.ui.targetratingframe:SetVisible(true)
+		rr.ui.targetvotesframe:SetVisible(true)
+		rr.ui.barbackground:SetVisible(true)
+		rr.ui.respected:SetVisible(true)
+		rr.ui.notorious:SetVisible(true)
+	    rr.ui.barindicator:SetVisible(true)
+		
+		rr.ui.backgroundframe2:SetVisible(true)
+		rr.ui.targetratingframe2:SetVisible(true)
+		rr.ui.targetvotesframe2:SetVisible(true)
+		rr.ui.barbackground2:SetVisible(true)
+		rr.ui.respected2:SetVisible(true)
+		rr.ui.notorious2:SetVisible(true)
+	    rr.ui.barindicator2:SetVisible(true)
 	
 	Event.System.Update.Begin[rr.updateindex][1] = rr.onupdate
 
@@ -467,8 +481,21 @@ function rr.off()
 	rrsettings.active = false
 	Command.Message.Reject("yell", "rrep")
 	print("RiftReputation off")
-	--rr.ui.playerratingframe:SetVisible(false)
-	--rr.ui.targetratingframe:SetVisible(false)
+		rr.ui.backgroundframe:SetVisible(false)
+		rr.ui.targetratingframe:SetVisible(false)
+		rr.ui.targetvotesframe:SetVisible(false)
+		rr.ui.barbackground:SetVisible(false)
+		rr.ui.respected:SetVisible(false)
+		rr.ui.notorious:SetVisible(false)
+	    rr.ui.barindicator:SetVisible(false)
+		
+		rr.ui.backgroundframe2:SetVisible(false)
+		rr.ui.targetratingframe2:SetVisible(false)
+		rr.ui.targetvotesframe2:SetVisible(false)
+		rr.ui.barbackground2:SetVisible(false)
+		rr.ui.respected2:SetVisible(false)
+		rr.ui.notorious2:SetVisible(false)
+	    rr.ui.barindicator2:SetVisible(false)
 	
 	Event.System.Update.Begin[rr.updateindex][1] = function() end
 		
@@ -500,6 +527,144 @@ function rr.erase()
 end
 
 --UI
+
+function rr.ui.createsearch()
+
+	rr.ui.RightDown = false
+    rr.ui.originalXDiff2 = 0
+    rr.ui.originalYDiff2 = 0
+
+	if not rrsettings.ui_x2 then rrsettings.ui_x2 = defaults.ui_x2 end
+	if not rrsettings.ui_y2 then rrsettings.ui_y2 = defaults.ui_y2 end
+	
+	-- Background Frame
+	
+	rr.ui.backgroundframe2 = UI.CreateFrame("Text", "Background2", rr.ui.context)
+    
+	rr.ui.backgroundframe2:SetFontSize(16)
+    rr.ui.backgroundframe2:SetFontColor(1, 1, 1, 0)
+	rr.ui.backgroundframe2:SetWidth(200)
+	rr.ui.backgroundframe2:SetHeight(75)
+    rr.ui.backgroundframe2:SetBackgroundColor(0, 0, 0, .35)    
+    rr.ui.backgroundframe2:SetLayer(50)
+	rr.ui.backgroundframe2:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rrsettings.ui_x2, rrsettings.ui_y2)
+    rr.ui.backgroundframe2:SetVisible(true)
+	rr.ui.backgroundframe2:SetMouseMasking("limited")
+
+	function rr.ui.backgroundframe2.Event:RightDown()
+		if rrsettings.locked == false 
+		then
+			rr.ui.RightDown = true
+			local mouse = Inspect.Mouse()
+			rr.ui.originalXDiff2 = mouse.x - rr.ui.backgroundframe2:GetLeft()
+			rr.ui.originalYDiff2 = mouse.y - rr.ui.backgroundframe2:GetTop()
+		end
+	end
+	
+	function rr.ui.backgroundframe2.Event:RightUp()
+		if rrsettings.locked == false 
+		then	
+			rr.ui.RightDown = false
+		end
+	end
+	
+	function rr.ui.backgroundframe2.Event:RightUpoutside()
+		if rrsettings.locked == false 
+		then	
+			rr.ui.RightDown = false
+		end
+	end
+	
+	function rr.ui.backgroundframe2.Event:MouseMove(x, y)
+		if rrsettings.locked == false 
+		then	
+			if not rr.ui.RightDown then
+				return
+			end
+			rr.ui.backgroundframe2:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x - rr.ui.originalXDiff2, y - rr.ui.originalYDiff2)
+			rrsettings.ui_x2 = x - rr.ui.originalXDiff2
+			rrsettings.ui_y2 = y - rr.ui.originalYDiff2
+		end		
+	end
+
+	
+	-- search Frame
+	
+	rr.ui.targetratingframe2 = UI.CreateFrame("RiftTextfield", "SearchRating", rr.ui.context)
+    
+	rr.ui.targetratingframe2:SetText("Search...")
+	--rr.ui.targetratingframe2:SetFontSize(15)
+    --rr.ui.targetratingframe2:SetFontColor(1, 1, 1, 1)
+	rr.ui.targetratingframe2:SetWidth(200)
+	rr.ui.targetratingframe2:SetHeight(22)
+    rr.ui.targetratingframe2:SetBackgroundColor(0, 0, 0, .35)    
+    rr.ui.targetratingframe2:SetLayer(51)
+	rr.ui.targetratingframe2:SetPoint("TOPLEFT", rr.ui.backgroundframe2, "TOPLEFT", 0, 0)
+    rr.ui.targetratingframe2:SetVisible(true)
+	
+	function rr.ui.targetratingframe2.Event:TextfieldChange()
+		rr.ui.searchtext = rr.ui.targetratingframe2:GetText()
+		rr.ui.update()
+	end
+	
+
+	-- search votes text Frame
+	
+	rr.ui.targetvotesframe2 = UI.CreateFrame("Text", "TargetVotes2", rr.ui.context)
+    
+	rr.ui.targetvotesframe2:SetFontSize(15)
+    rr.ui.targetvotesframe2:SetFontColor(1, 1, 1, 1)
+	rr.ui.targetvotesframe2:SetWidth(200)
+	rr.ui.targetvotesframe2:SetHeight(22)
+    rr.ui.targetvotesframe2:SetBackgroundColor(0, 0, 0, .35)    
+    rr.ui.targetvotesframe2:SetLayer(51)
+	rr.ui.targetvotesframe2:SetPoint("BOTTOMLEFT", rr.ui.backgroundframe2, "BOTTOMLEFT", 0, 0)
+    rr.ui.targetvotesframe2:SetVisible(true)
+	
+	-- search bar background Frame
+	
+	rr.ui.barbackground2 = UI.CreateFrame("Texture", "Barbackground2", rr.ui.context)
+    
+	rr.ui.barbackground2:SetTexture("RiftReputation", "media/barbackground.png")
+	rr.ui.barbackground2:SetWidth(100)
+	rr.ui.barbackground2:SetHeight(32)
+    rr.ui.barbackground2:SetLayer(51)
+	rr.ui.barbackground2:SetPoint("CENTER", rr.ui.backgroundframe2, "CENTER", 0, 0)
+    rr.ui.barbackground2:SetVisible(true)
+	
+	-- search respected Frame
+	
+	rr.ui.respected2 = UI.CreateFrame("Texture", "Respected2", rr.ui.context)
+    
+	rr.ui.respected2:SetTexture("RiftReputation", "media/respected.png")
+	rr.ui.respected2:SetWidth(50)
+	rr.ui.respected2:SetHeight(35)
+    rr.ui.respected2:SetLayer(52)
+	rr.ui.respected2:SetPoint("CENTERRIGHT", rr.ui.backgroundframe2, "CENTERRIGHT", 0, 0)
+    rr.ui.respected2:SetVisible(true)
+
+	-- search notorious Frame
+	
+	rr.ui.notorious2 = UI.CreateFrame("Texture", "Notorious2", rr.ui.context)
+    
+	rr.ui.notorious2:SetTexture("RiftReputation", "media/notorious.png")
+	rr.ui.notorious2:SetWidth(50)
+	rr.ui.notorious2:SetHeight(35)
+    rr.ui.notorious2:SetLayer(52)
+	rr.ui.notorious2:SetPoint("CENTERLEFT", rr.ui.backgroundframe2, "CENTERLEFT", 0, 0)
+    rr.ui.notorious2:SetVisible(true)
+	
+	-- search bar indicator Frame
+	
+	rr.ui.barindicator2 = UI.CreateFrame("Texture", "barindicator2", rr.ui.context)
+    
+	rr.ui.barindicator2:SetTexture("RiftReputation", "media/indicator.png")
+	rr.ui.barindicator2:SetWidth(7)
+	rr.ui.barindicator2:SetHeight(35)
+    rr.ui.barindicator2:SetLayer(53)
+	rr.ui.barindicator2:SetPoint("CENTER", rr.ui.barbackground2, "CENTER", 0, 0)
+    rr.ui.barindicator2:SetVisible(true)
+end
 
 function rr.ui.create()
 
@@ -641,43 +806,36 @@ function rr.ui.update()
 	local barxoffset = 50
 	local total = 0
 	local votes = 0
+	
+	local barxoffset2 = 50
+	local total2 = 0
+	local votes2 = 0
 
-	if Inspect.Unit.Detail('player.target')
+	if Inspect.Unit.Detail('player.target') and Inspect.Unit.Detail('player.target').player == true
 	then
-		if Inspect.Unit.Detail('player.target').player == true 
-		then
-			local target = Inspect.Unit.Detail('player.target').name
-			rr.ui.backgroundframe:SetVisible(true)
-			rr.ui.targetratingframe:SetText(target .. "'s Repute:")
-			rr.ui.targetratingframe:SetVisible(true)
-			
-			rr.ui.targetvotesframe:SetVisible(true)
-			rr.ui.barbackground:SetVisible(true)
-			rr.ui.respected:SetVisible(true)
-			rr.ui.notorious:SetVisible(true)
-			rr.ui.barindicator:SetVisible(true)
-			if rrplayerdata[target] ~= nil then
+
+		local target = Inspect.Unit.Detail('player.target').name
+		rr.ui.backgroundframe:SetVisible(true)
+		rr.ui.targetratingframe:SetText(target .. "'s Repute:")
+		rr.ui.targetratingframe:SetVisible(true)
+		
+		rr.ui.targetvotesframe:SetVisible(true)
+		rr.ui.barbackground:SetVisible(true)
+		rr.ui.respected:SetVisible(true)
+		rr.ui.notorious:SetVisible(true)
+		rr.ui.barindicator:SetVisible(true)
+		if rrplayerdata[target] ~= nil then
 			total = (rrplayerdata[target].upscore + rrplayerdata[target].neutralscore + rrplayerdata[target].downscore)
 			rrplayerdata[target].uppercent = (rrplayerdata[target].upscore / total)
 			rrplayerdata[target].neutralpercent = (rrplayerdata[target].neutralscore / total)
 			barxoffset = 100 * ((.5 * rrplayerdata[target].neutralpercent) + rrplayerdata[target].uppercent)
 			votes = (rrplayerdata[target].numuprecieved + rrplayerdata[target].numdownrecieved + rrplayerdata[target].numneutralrecieved - 3)
 			if votes < 0 then votes = 0 end
-			end
+		end	
 			rr.ui.targetvotesframe:SetText("Total Votes: " .. votes)
 			rr.ui.barindicator:SetPoint("CENTER", rr.ui.barbackground, "CENTERLEFT", barxoffset, 0)
 		
-		
-		
-		else
-			rr.ui.backgroundframe:SetVisible(false)
-			rr.ui.targetratingframe:SetVisible(false)
-			rr.ui.targetvotesframe:SetVisible(false)
-			rr.ui.barbackground:SetVisible(false)
-			rr.ui.respected:SetVisible(false)
-			rr.ui.notorious:SetVisible(false)
-		    rr.ui.barindicator:SetVisible(false)
-		end
+
 	else
 		rr.ui.backgroundframe:SetVisible(false)
 		rr.ui.targetratingframe:SetVisible(false)
@@ -688,12 +846,21 @@ function rr.ui.update()
 	    rr.ui.barindicator:SetVisible(false)
 	end
 	
-	if rrsettings.locked == false 
-	then
+	if rr.ui.searchtext ~= nil and rrplayerdata[rr.ui.searchtext:gsub("^%l", string.upper)] ~= nil then
+		total2 = (rrplayerdata[rr.ui.searchtext].upscore + rrplayerdata[rr.ui.searchtext].neutralscore + rrplayerdata[rr.ui.searchtext].downscore)
+		rrplayerdata[rr.ui.searchtext].uppercent = (rrplayerdata[rr.ui.searchtext].upscore / total2)
+		rrplayerdata[rr.ui.searchtext].neutralpercent = (rrplayerdata[rr.ui.searchtext].neutralscore / total2)
+		barxoffset2 = 100 * ((.5 * rrplayerdata[rr.ui.searchtext].neutralpercent) + rrplayerdata[rr.ui.searchtext].uppercent)
+		votes2 = (rrplayerdata[rr.ui.searchtext].numuprecieved + rrplayerdata[rr.ui.searchtext].numdownrecieved + rrplayerdata[rr.ui.searchtext].numneutralrecieved - 3)
+		if votes2 < 0 then votes2 = 0 end
 
+		rr.ui.targetvotesframe2:SetText("Total Votes: " .. votes2)
+		rr.ui.barindicator2:SetPoint("CENTER", rr.ui.barbackground2, "CENTERLEFT", barxoffset2, 0)
 	else
-	
+		rr.ui.targetvotesframe2:SetText("Total Votes: 0")
+		rr.ui.barindicator2:SetPoint("CENTER", rr.ui.barbackground2, "CENTERLEFT", 50, 0)
 	end
+
 
 end
 
@@ -841,6 +1008,8 @@ function test()
 end
 
 
+table.insert(Event.System.Secure.Enter, 			{rr.entercombat, 		"RiftReputation", "Enter Combat"})
+table.insert(Event.System.Secure.Leave, 			{rr.leavecombat,		"RiftReputation", "Leave Combat"})
 table.insert(Event.Addon.SavedVariables.Save.Begin, {rr.convert, 			"RiftReputation", "Convert b4 save"})
 table.insert(Event.Addon.SavedVariables.Load.End, 	{rr.addonloaded,		"RiftReputation", "Load variables"})
 table.insert(Event.Message.Receive, 				{rr.recieve, 			"RiftReputation", "Received Message"})
