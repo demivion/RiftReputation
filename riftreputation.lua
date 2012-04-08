@@ -364,87 +364,67 @@ function rr.slash(params)
 		argnumber = argnumber + 1
 	end
 	
-	if argnumber > 0 
+		
+	if args[0] == "on" and argnumber == 1
 	then
-		
-		if args[0] == "on" 
+		rr.on()
+	elseif args[0] == "off" and argnumber == 1
+	then
+		rr.off()
+	elseif args[0] == "erase" and argnumber == 1
+	then
+		rr.erase()
+	elseif args[0] == "list" and argnumber == 1
+	then
+		rr.rateshow()
+	elseif args[0] == "vote" and argnumber == 2 and Inspect.Unit.Detail("player.target").player == true
+	then
+	
+		local voter = Inspect.Unit.Detail("player").name
+		local player = Inspect.Unit.Detail("player.target").name
+		local scoretype = string.lower(args[1])
+		--print(scoretype)
+		if player == voter 
+		then 
+			print("Sorry! No self-votes allowed :P")
+		elseif Inspect.Unit.Detail("player.target").level ~= 50
 		then
-			rr.on()
-		end
-		
-		if args[0] == "off"
+			print("You can only vote for level 50 players")
+		elseif Inspect.Unit.Detail("player").level ~= 50
 		then
-			rr.off()
-		end
-		
-		if args[0] == "erase"
-		then
-			rr.erase()
-		end
-		
-		if args[0] == "list" 
-		then
-			rr.rateshow()
-		end
-		
-		if args[0] == "vote" and argnumber == 2 and Inspect.Unit.Detail("player.target").player == true
-		then
-		
-			local voter = Inspect.Unit.Detail("player").name
-			local player = Inspect.Unit.Detail("player.target").name
-			local scoretype = string.lower(args[1])
-			--print(scoretype)
-			if player == voter 
-			then 
-				print("Sorry! No self-votes allowed :P")
-			elseif Inspect.Unit.Detail("player.target").level ~= 50
-			then
-				print("You can only vote for level 50 players")
-			elseif Inspect.Unit.Detail("player").level ~= 50
-			then
-				print("You can only vote if you are level 50")
-			elseif string.find(player, "@") ~= nil then
-				print("You can only vote for players on your own shard")
-			elseif Inspect.Unit.Detail("player.target").faction ~= Inspect.Unit.Detail("player").faction then
-				print("You can only vote for players of your faction")
+			print("You can only vote if you are level 50")
+		elseif string.find(player, "@") ~= nil then
+			print("You can only vote for players on your own shard")
+		elseif Inspect.Unit.Detail("player.target").faction ~= Inspect.Unit.Detail("player").faction then
+			print("You can only vote for players of your faction")
+		else
+			if scoretype == "up" then 
+				rr.ratestore(player, voter, "1")
+				print("You gave " .. player .. " a Positive vote!")
+			elseif scoretype == "neutral" then
+				rr.ratestore(player, voter, "2")
+				print("You gave " .. player .. " a Neutral vote!")
+			elseif scoretype == "down" then
+				rr.ratestore(player, voter, "3")
+				print("You gave " .. player .. " a Negative vote!")
 			else
-				if scoretype == "up" then 
-					rr.ratestore(player, voter, "1")
-					print("You gave " .. player .. " a Positive vote!")
-				elseif scoretype == "neutral" then
-					rr.ratestore(player, voter, "2")
-					print("You gave " .. player .. " a Neutral vote!")
-				elseif scoretype == "down" then
-					rr.ratestore(player, voter, "3")
-					print("You gave " .. player .. " a Negative vote!")
-				else
-					print("Vote up neutral or down only")
-				end
+				print("Vote up neutral or down only")
 			end
 		end
-	
-		if args[0] == "lock"
-		then
-			rrsettings.locked = true
-			print("UI locked")
-		end
-		
-		if args[0] == "unlock"
-		then
-			rrsettings.locked = false
-			print("UI unlocked")
-		end
-	
-		if args[0] == "show" and argnumber == 2
-		then
-			rr.playershow(args[1]:gsub("^%l", string.upper))
-		end
-		
-		if args[0] == "test"
-		then
-			test()
-		end
-		
+	elseif args[0] == "lock" and argnumber == 1
+	then
+		rrsettings.locked = true
+		print("UI locked")
+	elseif args[0] == "unlock" and argnumber == 1
+	then
+		rrsettings.locked = false
+		print("UI unlocked")
+	elseif args[0] == "show" and argnumber == 2
+	then
+		rr.playershow(args[1]:gsub("^%l", string.upper))
+	elseif args[0] == "test"
+	then
+		test()
 	else
 		rr.help()
 	end
@@ -453,12 +433,13 @@ end
 function rr.help()
 
 	print("RiftReputation: A player reputation system.")
+	print("Right click and drag to move UI frames.")
 	print("[/rr on]")
 	print("[/rr off]")
-	print("[/rr list] to list all reputations")
+	print("[/rr list] to list all data")
+	print("[/rr erase] use this twice to erase all of your saved data and restore to defaults. (note: this does not erase your voting history from other players)")
 	print("[/rr show player] to view a specific player's reputation")
-	print("[/rr vote player up/neutral/down] to give a player a positive/neutral/negative vote.")
-	print("[/rr vote up/neutral/dow]n   to give your target a positive/neutral/negative vote.")
+	print("[/rr vote up/neutral/down]   to give your target a positive/neutral/negative vote.")
 	print("[/rr lock/unlock] to either lock or unlock the UI frames")
 
 
@@ -1025,3 +1006,4 @@ table.insert(Event.Addon.SavedVariables.Save.Begin, {rr.convert, 			"RiftReputat
 table.insert(Event.Addon.SavedVariables.Load.End, 	{rr.addonloaded,		"RiftReputation", "Load variables"})
 table.insert(Event.Message.Receive, 				{rr.recieve, 			"RiftReputation", "Received Message"})
 table.insert(Command.Slash.Register("rr"), 			{rr.slash, 				"RiftReputation", "Slash Cmd"})
+table.insert(Command.Slash.Register("RiftReputation"), 	{rr.help, 			"RiftReputation", "Slash Cmd"})
