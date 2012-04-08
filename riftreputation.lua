@@ -663,6 +663,44 @@ function rr.ui.createsearch()
     rr.ui.barindicator2:SetLayer(53)
 	rr.ui.barindicator2:SetPoint("CENTER", rr.ui.barbackground2, "CENTER", 0, 0)
     rr.ui.barindicator2:SetVisible(true)
+
+	-- close button
+	rr.ui.searchclosebutton = UI.CreateFrame("Texture", "SearchCloseButton", rr.ui.context)
+    
+	rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/X.png")
+	rr.ui.searchclosebutton:SetWidth(25)
+	rr.ui.searchclosebutton:SetHeight(25)
+    rr.ui.searchclosebutton:SetLayer(53)
+	rr.ui.searchclosebutton:SetPoint("TOPRIGHT", rr.ui.backgroundframe2, "TOPLEFT", 0, 0)
+    rr.ui.searchclosebutton:SetVisible(true)
+	
+	function rr.ui.searchclosebutton.Event:LeftDown()
+		rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/Xdown.png")	
+	end
+	
+	function rr.ui.searchclosebutton.Event:LeftUp()
+		if rr.ui.searchclose == false or rr.ui.searchclose == nil then
+			rr.ui.searchclose = true
+			rr.ui.backgroundframe2:SetVisible(false)
+			rr.ui.targetratingframe2:SetVisible(false)
+			rr.ui.targetvotesframe2:SetVisible(false)
+			rr.ui.barbackground2:SetVisible(false)
+			rr.ui.respected2:SetVisible(false)
+			rr.ui.notorious2:SetVisible(false)
+			rr.ui.barindicator2:SetVisible(false)
+		else
+			rr.ui.searchclose = false
+			rr.ui.backgroundframe2:SetVisible(true)
+			rr.ui.targetratingframe2:SetVisible(true)
+			rr.ui.targetvotesframe2:SetVisible(true)
+			rr.ui.barbackground2:SetVisible(true)
+			rr.ui.respected2:SetVisible(true)
+			rr.ui.notorious2:SetVisible(true)
+			rr.ui.barindicator2:SetVisible(true)
+		end
+		rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/X.png")
+	end
+
 end
 
 function rr.ui.create()
@@ -787,6 +825,49 @@ function rr.ui.create()
     rr.ui.notorious:SetLayer(52)
 	rr.ui.notorious:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPLEFT", 0, 20)
     rr.ui.notorious:SetVisible(false)
+	
+	-- close button
+	rr.ui.closebutton = UI.CreateFrame("Texture", "CloseButton", rr.ui.context)
+    
+	rr.ui.closebutton:SetTexture("RiftReputation", "media/X.png")
+	rr.ui.closebutton:SetWidth(25)
+	rr.ui.closebutton:SetHeight(25)
+    rr.ui.closebutton:SetLayer(53)
+	rr.ui.closebutton:SetPoint("TOPRIGHT", rr.ui.backgroundframe, "TOPLEFT", 0, 0)
+    rr.ui.closebutton:SetVisible(true)
+	
+	function rr.ui.closebutton.Event:LeftDown()
+		rr.ui.closebutton:SetTexture("RiftReputation", "media/Xdown.png")	
+	end
+	
+	function rr.ui.closebutton.Event:LeftUp()
+		if rr.ui.targetclose == false or rr.ui.targetclose == nil then
+			rr.ui.targetclose = true
+			rr.ui.backgroundframe:SetVisible(false)
+			rr.ui.targetratingframe:SetVisible(false)
+			rr.ui.targetvotesframe:SetVisible(false)
+			rr.ui.barbackground:SetVisible(false)
+			rr.ui.respected:SetVisible(false)
+			rr.ui.notorious:SetVisible(false)
+			rr.ui.barindicator:SetVisible(false)
+			rr.ui.neutralbutton:SetVisible(false)
+			rr.ui.upbutton:SetVisible(false)
+			rr.ui.downbutton:SetVisible(false)
+		else
+			rr.ui.targetclose = false
+			rr.ui.backgroundframe:SetVisible(true)
+			rr.ui.targetratingframe:SetVisible(true)
+			rr.ui.targetvotesframe:SetVisible(true)
+			rr.ui.barbackground:SetVisible(true)
+			rr.ui.respected:SetVisible(true)
+			rr.ui.notorious:SetVisible(true)
+			rr.ui.barindicator:SetVisible(true)
+			rr.ui.neutralbutton:SetVisible(true)
+			rr.ui.upbutton:SetVisible(true)
+			rr.ui.downbutton:SetVisible(true)
+		end
+		rr.ui.closebutton:SetTexture("RiftReputation", "media/X.png")
+	end
 	
 	-- down vote button
 	rr.ui.downbutton = UI.CreateFrame("Texture", "DownButton", rr.ui.context)
@@ -939,14 +1020,14 @@ function rr.ui.update()
 	local barxoffset = 50
 	local total = 0
 	local votes = 0
-	
+	local player = Inspect.Unit.Detail('player').name
 	local barxoffset2 = 50
 	local total2 = 0
 	local votes2 = 0
 
-	if Inspect.Unit.Detail('player.target') and Inspect.Unit.Detail('player.target').player == true
+	if (rr.ui.targetclose == false or rr.ui.targetclose == nil) and Inspect.Unit.Detail('player.target') and Inspect.Unit.Detail('player.target').player == true and Inspect.Unit.Detail('player.target').faction == Inspect.Unit.Detail('player').faction and Inspect.Unit.Detail('player.target').level == 50 and string.find(Inspect.Unit.Detail('player.target').name, "@") == nil
 	then
-		local player = Inspect.Unit.Detail('player').name
+		
 		local target = Inspect.Unit.Detail('player.target').name
 		rr.ui.backgroundframe:SetVisible(true)
 		rr.ui.targetratingframe:SetText(target .. "'s Repute:")
@@ -1006,8 +1087,8 @@ function rr.ui.update()
 		rr.ui.upbutton:SetVisible(false)
 		rr.ui.downbutton:SetVisible(false)
 	end
-	
-	if rr.ui.searchtext ~= nil and rrplayerdata[rr.ui.searchtext:gsub("^%l", string.upper)] ~= nil then
+
+	if (rr.ui.searchclose == false or rr.ui.searchclose == nil) and rr.ui.searchtext ~= nil and rrplayerdata[rr.ui.searchtext:gsub("^%l", string.upper)] ~= nil then
 		total2 = (rrplayerdata[rr.ui.searchtext].upscore + rrplayerdata[rr.ui.searchtext].neutralscore + rrplayerdata[rr.ui.searchtext].downscore)
 		rrplayerdata[rr.ui.searchtext].uppercent = (rrplayerdata[rr.ui.searchtext].upscore / total2)
 		rrplayerdata[rr.ui.searchtext].neutralpercent = (rrplayerdata[rr.ui.searchtext].neutralscore / total2)
