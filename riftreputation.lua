@@ -297,10 +297,11 @@ function rr.broadcast()
 					selfvotes[rrsettings.player] = {}
 				end
 				
-				selfvotes[rrsettings.player][player] = votes[player][rrsettings.player]
-					
+				selfvotes[rrsettings.player][zlib.deflate(9)(player, "finish")] = votes[player][rrsettings.player]
+				--print(table.show(selfvotes))	
 				testinline = Utility.Serialize.Inline(selfvotes)
 				testdata = zlib.deflate(9)(testinline, "finish")
+				--testdata2 = zlib.deflate(9)(testdata, "finish")
 				size = Utility.Message.Size(nil, "rrep", testdata)
 				
 				if size >= 1000 then
@@ -316,8 +317,10 @@ function rr.broadcast()
 		--print(table.show(selfvotes))
 		votesinline = Utility.Serialize.Inline(selfvotes)
 		votesdata = zlib.deflate(9)(votesinline, "finish")
-		--print(Utility.Message.Size(nil, "rrep", votesdata))
-		Command.Message.Broadcast("yell", nil, "rrep", votesdata)
+		--votesdata2 = zlib.deflate(9)(votesdata, "finish")
+		--print(Utility.Message.Size(nil, "rrep", string.format("%s%s", "x", votesdata)))
+		--print("sent: " .. votesdata)
+		Command.Message.Broadcast("yell", nil, "rrep", string.format("%s%s", "x", votesdata))
 	end
 	
 end
@@ -331,9 +334,10 @@ local voter
 	--print("message recieved from: " .. from)
 
 
-	if rrsettings.active == true --and from ~= self
+	if rrsettings.active == true and from ~= self
 	then
-		datainflated = zlib.inflate()(data, "finish")
+		datainflated = zlib.inflate()(string.sub(data, 2), "finish")
+		--datainflated2 = zlib.inflate()(datainflated, "finish")
 		dataload = loadstring("return " .. datainflated)() 
 		--print("recieved:")
 		--print(table.show(dataload))
@@ -343,9 +347,11 @@ local voter
 		if dataload ~= nil and dataload[from] ~= nil then
 			for players, value  in pairs(dataload[from]) do
 				--for voters, value in pairs(dataload[players]) do
-				if value == 1 or value == 2 or value == 3 then
-					rr.ratestore(players, from, value)
-					--print("player = " .. players)
+				playeri = zlib.inflate()(players, "finish")
+				--print("score = " .. value)
+				if value == "1" or value == "2" or value == "3" then
+					rr.ratestore(playeri, from, value)
+					--print("player = " .. playeri)
 					--print("voter = " .. from)
 					--print("score = " .. value)
 				end
@@ -793,7 +799,7 @@ function rr.ui.create()
     rr.ui.downbutton:SetVisible(false)
 	
 	function rr.ui.downbutton.Event:LeftDown()
-		rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdownpressed.png")	
+		rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdowndepressed.png")	
 	end
 	
 	function rr.ui.downbutton.Event:LeftUp()
@@ -838,7 +844,7 @@ function rr.ui.create()
     rr.ui.upbutton:SetVisible(false)
 	
 	function rr.ui.upbutton.Event:LeftDown()
-		rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsuppressed.png")	
+		rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsupdepressed.png")	
 	end
 	
 	function rr.ui.upbutton.Event:LeftUp()
@@ -883,7 +889,7 @@ function rr.ui.create()
     rr.ui.neutralbutton:SetVisible(false)
 
 	function rr.ui.neutralbutton.Event:LeftDown()
-		rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutralpressed.png")	
+		rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutraldepressed.png")	
 	end
 	
 	function rr.ui.neutralbutton.Event:LeftUp()
