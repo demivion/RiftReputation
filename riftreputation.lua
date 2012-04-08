@@ -264,9 +264,10 @@ print(table.show(rrvoterdata))
 end
 
 function rr.playershow(player)
-	
+	local total  = (rrplayerdata[player].numuprecieved + rrplayerdata[player].numneutralrecieved + rrplayerdata[player].numdownrecieved -3)
+	if total < 0 then total = 0 end
 	if rrplayerdata[player] then
-		print(player .. "'s Reputation: " ..(rrplayerdata[player].numuprecieved + rrplayerdata[player].numneutralrecieved + rrplayerdata[player].numdownrecieved) .. "Votes")
+		print(player .. "'s Reputation: " .. total .. "Votes")
 		print(string.format("%.2f%%%s", rrplayerdata[player].uppercent*100, " Positive"))
 		print(string.format("%.2f%%%s", rrplayerdata[player].neutralpercent*100, " Neutral"))
 		print(string.format("%.2f%%%s", rrplayerdata[player].downpercent*100, " Negative"))
@@ -677,7 +678,7 @@ function rr.ui.create()
     
 	rr.ui.backgroundframe:SetFontSize(16)
     rr.ui.backgroundframe:SetFontColor(1, 1, 1, 0)
-	rr.ui.backgroundframe:SetWidth(200)
+	rr.ui.backgroundframe:SetWidth(225)
 	rr.ui.backgroundframe:SetHeight(75)
     rr.ui.backgroundframe:SetBackgroundColor(0, 0, 0, .35)    
     rr.ui.backgroundframe:SetLayer(50)
@@ -756,7 +757,7 @@ function rr.ui.create()
 	rr.ui.barbackground:SetWidth(100)
 	rr.ui.barbackground:SetHeight(32)
     rr.ui.barbackground:SetLayer(51)
-	rr.ui.barbackground:SetPoint("CENTER", rr.ui.backgroundframe, "CENTER", 0, 0)
+	rr.ui.barbackground:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPLEFT", 50, 22)
     rr.ui.barbackground:SetVisible(false)
 	
 	-- respected Frame
@@ -767,7 +768,7 @@ function rr.ui.create()
 	rr.ui.respected:SetWidth(50)
 	rr.ui.respected:SetHeight(35)
     rr.ui.respected:SetLayer(52)
-	rr.ui.respected:SetPoint("CENTERRIGHT", rr.ui.backgroundframe, "CENTERRIGHT", 0, 0)
+	rr.ui.respected:SetPoint("TOPLEFT", rr.ui.barbackground, "TOPRIGHT", 0, -2)
     rr.ui.respected:SetVisible(false)
 
 	-- notorious Frame
@@ -778,8 +779,142 @@ function rr.ui.create()
 	rr.ui.notorious:SetWidth(50)
 	rr.ui.notorious:SetHeight(35)
     rr.ui.notorious:SetLayer(52)
-	rr.ui.notorious:SetPoint("CENTERLEFT", rr.ui.backgroundframe, "CENTERLEFT", 0, 0)
+	rr.ui.notorious:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPLEFT", 0, 20)
     rr.ui.notorious:SetVisible(false)
+	
+	-- down vote button
+	rr.ui.downbutton = UI.CreateFrame("Texture", "DownButton", rr.ui.context)
+    
+	rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
+	rr.ui.downbutton:SetWidth(25)
+	rr.ui.downbutton:SetHeight(25)
+    rr.ui.downbutton:SetLayer(52)
+	rr.ui.downbutton:SetPoint("BOTTOMRIGHT", rr.ui.backgroundframe, "BOTTOMRIGHT", 0, 0)
+    rr.ui.downbutton:SetVisible(false)
+	
+	function rr.ui.downbutton.Event:LeftDown()
+		rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdownpressed.png")	
+	end
+	
+	function rr.ui.downbutton.Event:LeftUp()
+		local voter = Inspect.Unit.Detail("player").name
+		local player = Inspect.Unit.Detail("player.target").name
+
+
+		if player == voter 
+		then 
+			print("Sorry! No self-votes allowed :P")
+		elseif Inspect.Unit.Detail("player.target").level ~= 50
+		then
+			print("You can only vote for level 50 players")
+		elseif Inspect.Unit.Detail("player").level ~= 50
+		then
+			print("You can only vote if you are level 50")
+		elseif string.find(player, "@") ~= nil then
+			print("You can only vote for players on your own shard")
+		elseif Inspect.Unit.Detail("player.target").faction ~= Inspect.Unit.Detail("player").faction then
+			print("You can only vote for players of your faction")
+		else
+			rr.ratestore(player, voter, "3")
+			print("You gave " .. player .. " a Negative vote!")
+		end
+		
+		if rrvotes ~= nil and rrvotes[player] ~= nil and rrvotes[player][voter] == "3" then
+			rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdownchecked.png")
+		else
+			rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
+		end
+		
+	end
+	
+	-- up vote button
+	rr.ui.upbutton = UI.CreateFrame("Texture", "UpButton", rr.ui.context)
+    
+	rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsup.png")
+	rr.ui.upbutton:SetWidth(25)
+	rr.ui.upbutton:SetHeight(25)
+    rr.ui.upbutton:SetLayer(52)
+	rr.ui.upbutton:SetPoint("TOPRIGHT", rr.ui.backgroundframe, "TOPRIGHT", 0, 0)
+    rr.ui.upbutton:SetVisible(false)
+	
+	function rr.ui.upbutton.Event:LeftDown()
+		rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsuppressed.png")	
+	end
+	
+	function rr.ui.upbutton.Event:LeftUp()
+		local voter = Inspect.Unit.Detail("player").name
+		local player = Inspect.Unit.Detail("player.target").name
+
+
+		if player == voter 
+		then 
+			print("Sorry! No self-votes allowed :P")
+		elseif Inspect.Unit.Detail("player.target").level ~= 50
+		then
+			print("You can only vote for level 50 players")
+		elseif Inspect.Unit.Detail("player").level ~= 50
+		then
+			print("You can only vote if you are level 50")
+		elseif string.find(player, "@") ~= nil then
+			print("You can only vote for players on your own shard")
+		elseif Inspect.Unit.Detail("player.target").faction ~= Inspect.Unit.Detail("player").faction then
+			print("You can only vote for players of your faction")
+		else
+			rr.ratestore(player, voter, "1")
+			print("You gave " .. player .. " a Positive vote!")
+		end
+		
+		if rrvotes ~= nil and rrvotes[player] ~= nil and rrvotes[player][voter] == "1" then
+			rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsupchecked.png")
+		else
+			rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsup.png")
+		end
+		
+	end
+	
+	-- neutral vote button
+	rr.ui.neutralbutton = UI.CreateFrame("Texture", "NeutralButton", rr.ui.context)
+    
+	rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
+	rr.ui.neutralbutton:SetWidth(25)
+	rr.ui.neutralbutton:SetHeight(25)
+    rr.ui.neutralbutton:SetLayer(52)
+	rr.ui.neutralbutton:SetPoint("CENTERRIGHT", rr.ui.backgroundframe, "CENTERRIGHT", 0, 0)
+    rr.ui.neutralbutton:SetVisible(false)
+
+	function rr.ui.neutralbutton.Event:LeftDown()
+		rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutralpressed.png")	
+	end
+	
+	function rr.ui.neutralbutton.Event:LeftUp()
+		local voter = Inspect.Unit.Detail("player").name
+		local player = Inspect.Unit.Detail("player.target").name
+
+
+		if player == voter 
+		then 
+			print("Sorry! No self-votes allowed :P")
+		elseif Inspect.Unit.Detail("player.target").level ~= 50
+		then
+			print("You can only vote for level 50 players")
+		elseif Inspect.Unit.Detail("player").level ~= 50
+		then
+			print("You can only vote if you are level 50")
+		elseif string.find(player, "@") ~= nil then
+			print("You can only vote for players on your own shard")
+		elseif Inspect.Unit.Detail("player.target").faction ~= Inspect.Unit.Detail("player").faction then
+			print("You can only vote for players of your faction")
+		else
+			rr.ratestore(player, voter, "2")
+			print("You gave " .. player .. " a Neutral vote!")
+		end
+		
+		if rrvotes ~= nil and rrvotes[player] ~= nil and rrvotes[player][voter] == "2" then
+			rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutralchecked.png")
+		else
+			rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
+		end
+	end
 	
 	-- bar indicator Frame
 	
@@ -805,7 +940,7 @@ function rr.ui.update()
 
 	if Inspect.Unit.Detail('player.target') and Inspect.Unit.Detail('player.target').player == true
 	then
-
+		local player = Inspect.Unit.Detail('player').name
 		local target = Inspect.Unit.Detail('player.target').name
 		rr.ui.backgroundframe:SetVisible(true)
 		rr.ui.targetratingframe:SetText(target .. "'s Repute:")
@@ -816,6 +951,9 @@ function rr.ui.update()
 		rr.ui.respected:SetVisible(true)
 		rr.ui.notorious:SetVisible(true)
 		rr.ui.barindicator:SetVisible(true)
+		rr.ui.neutralbutton:SetVisible(true)
+		rr.ui.upbutton:SetVisible(true)
+		rr.ui.downbutton:SetVisible(true)
 		if rrplayerdata[target] ~= nil then
 			total = (rrplayerdata[target].upscore + rrplayerdata[target].neutralscore + rrplayerdata[target].downscore)
 			rrplayerdata[target].uppercent = (rrplayerdata[target].upscore / total)
@@ -826,7 +964,29 @@ function rr.ui.update()
 		end	
 			rr.ui.targetvotesframe:SetText("Total Votes: " .. votes)
 			rr.ui.barindicator:SetPoint("CENTER", rr.ui.barbackground, "CENTERLEFT", barxoffset, 0)
-		
+		if rrvotes ~= nil and rrvotes[target] ~= nil and rrvotes[target][player] ~= nil then
+			if rrvotes[target][player] == "3" then
+				rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdownchecked.png")
+			else
+				rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
+			end
+			
+			if rrvotes[target][player] == "2" then
+				rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutralchecked.png")
+			else
+				rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
+			end
+			
+			if rrvotes[target][player] == "1" then
+				rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsupchecked.png")
+			else
+				rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsup.png")
+			end
+		else
+			rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsup.png")
+			rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
+			rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
+		end
 
 	else
 		rr.ui.backgroundframe:SetVisible(false)
@@ -836,6 +996,9 @@ function rr.ui.update()
 		rr.ui.respected:SetVisible(false)
 		rr.ui.notorious:SetVisible(false)
 	    rr.ui.barindicator:SetVisible(false)
+		rr.ui.neutralbutton:SetVisible(false)
+		rr.ui.upbutton:SetVisible(false)
+		rr.ui.downbutton:SetVisible(false)
 	end
 	
 	if rr.ui.searchtext ~= nil and rrplayerdata[rr.ui.searchtext:gsub("^%l", string.upper)] ~= nil then
