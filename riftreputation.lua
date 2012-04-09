@@ -1025,54 +1025,57 @@ function rr.ui.update()
 	local total2 = 0
 	local votes2 = 0
 
-	if (rr.ui.targetclose == false or rr.ui.targetclose == nil) and Inspect.Unit.Detail('player.target') and Inspect.Unit.Detail('player.target').player == true and Inspect.Unit.Detail('player.target').faction == Inspect.Unit.Detail('player').faction and Inspect.Unit.Detail('player.target').level == 50 and string.find(Inspect.Unit.Detail('player.target').name, "@") == nil
+	if Inspect.Unit.Detail('player.target') and Inspect.Unit.Detail('player.target').player == true and Inspect.Unit.Detail('player.target').faction == Inspect.Unit.Detail('player').faction and Inspect.Unit.Detail('player.target').level == 50 and string.find(Inspect.Unit.Detail('player.target').name, "@") == nil
 	then
-		
-		local target = Inspect.Unit.Detail('player.target').name
-		rr.ui.backgroundframe:SetVisible(true)
-		rr.ui.targetratingframe:SetText(target .. "'s Repute:")
-		rr.ui.targetratingframe:SetVisible(true)
-		
-		rr.ui.targetvotesframe:SetVisible(true)
-		rr.ui.barbackground:SetVisible(true)
-		rr.ui.respected:SetVisible(true)
-		rr.ui.notorious:SetVisible(true)
-		rr.ui.barindicator:SetVisible(true)
-		rr.ui.neutralbutton:SetVisible(true)
-		rr.ui.upbutton:SetVisible(true)
-		rr.ui.downbutton:SetVisible(true)
-		if rrplayerdata[target] ~= nil then
-			total = (rrplayerdata[target].upscore + rrplayerdata[target].neutralscore + rrplayerdata[target].downscore)
-			rrplayerdata[target].uppercent = (rrplayerdata[target].upscore / total)
-			rrplayerdata[target].neutralpercent = (rrplayerdata[target].neutralscore / total)
-			barxoffset = 100 * ((.5 * rrplayerdata[target].neutralpercent) + rrplayerdata[target].uppercent)
-			votes = (rrplayerdata[target].numuprecieved + rrplayerdata[target].numdownrecieved + rrplayerdata[target].numneutralrecieved - 3)
-			if votes < 0 then votes = 0 end
-		end	
-			rr.ui.targetvotesframe:SetText("Total Votes: " .. votes)
-			rr.ui.barindicator:SetPoint("CENTER", rr.ui.barbackground, "CENTERLEFT", barxoffset, 0)
-		if rrvotes ~= nil and rrvotes[target] ~= nil and rrvotes[target][player] ~= nil then
-			if rrvotes[target][player] == "3" then
-				rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdownchecked.png")
-			else
-				rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
-			end
+		rr.ui.closebutton:SetVisible(true)
+		if rr.ui.targetclose == false or rr.ui.targetclose == nil then
+			local target = Inspect.Unit.Detail('player.target').name
+			rr.ui.backgroundframe:SetVisible(true)
+			rr.ui.targetratingframe:SetText(target .. "'s Repute:")
+			rr.ui.targetratingframe:SetVisible(true)
 			
-			if rrvotes[target][player] == "2" then
-				rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutralchecked.png")
-			else
-				rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
-			end
-			
-			if rrvotes[target][player] == "1" then
-				rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsupchecked.png")
+			rr.ui.targetvotesframe:SetVisible(true)
+			rr.ui.barbackground:SetVisible(true)
+			rr.ui.respected:SetVisible(true)
+			rr.ui.notorious:SetVisible(true)
+			rr.ui.barindicator:SetVisible(true)
+			rr.ui.neutralbutton:SetVisible(true)
+			rr.ui.upbutton:SetVisible(true)
+			rr.ui.downbutton:SetVisible(true)
+
+			if rrplayerdata[target] ~= nil then
+				total = (rrplayerdata[target].upscore + rrplayerdata[target].neutralscore + rrplayerdata[target].downscore)
+				rrplayerdata[target].uppercent = (rrplayerdata[target].upscore / total)
+				rrplayerdata[target].neutralpercent = (rrplayerdata[target].neutralscore / total)
+				barxoffset = 100 * ((.5 * rrplayerdata[target].neutralpercent) + rrplayerdata[target].uppercent)
+				votes = (rrplayerdata[target].numuprecieved + rrplayerdata[target].numdownrecieved + rrplayerdata[target].numneutralrecieved - 3)
+				if votes < 0 then votes = 0 end
+			end	
+				rr.ui.targetvotesframe:SetText("Total Votes: " .. votes)
+				rr.ui.barindicator:SetPoint("CENTER", rr.ui.barbackground, "CENTERLEFT", barxoffset, 0)
+			if rrvotes ~= nil and rrvotes[target] ~= nil and rrvotes[target][player] ~= nil then
+				if rrvotes[target][player] == "3" then
+					rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdownchecked.png")
+				else
+					rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
+				end
+				
+				if rrvotes[target][player] == "2" then
+					rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutralchecked.png")
+				else
+					rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
+				end
+				
+				if rrvotes[target][player] == "1" then
+					rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsupchecked.png")
+				else
+					rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsup.png")
+				end
 			else
 				rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsup.png")
+				rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
+				rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
 			end
-		else
-			rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsup.png")
-			rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
-			rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
 		end
 
 	else
@@ -1086,6 +1089,7 @@ function rr.ui.update()
 		rr.ui.neutralbutton:SetVisible(false)
 		rr.ui.upbutton:SetVisible(false)
 		rr.ui.downbutton:SetVisible(false)
+		rr.ui.closebutton:SetVisible(false)
 	end
 
 	if (rr.ui.searchclose == false or rr.ui.searchclose == nil) and rr.ui.searchtext ~= nil and rrplayerdata[rr.ui.searchtext:gsub("^%l", string.upper)] ~= nil then
