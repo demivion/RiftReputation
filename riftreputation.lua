@@ -19,10 +19,10 @@ RiftReputation_votesdata = ""
 
 local defaults = {
 	active = true,
-	ui_x = 650,
-	ui_y = 810,
-	ui_x2 = 1070,
-	ui_y2 = 810,
+	ui_x = 400,
+	ui_y = 400,
+	ui_x2 = 800,
+	ui_y2 = 400,
 	locked = false,
 	player = Inspect.Unit.Detail("player").name,
 }
@@ -543,7 +543,7 @@ function rr.ui.createsearch()
 	rr.ui.backgroundframe2:SetFontSize(16)
     rr.ui.backgroundframe2:SetFontColor(1, 1, 1, 0)
 	rr.ui.backgroundframe2:SetWidth(200)
-	rr.ui.backgroundframe2:SetHeight(75)
+	rr.ui.backgroundframe2:SetHeight(70)
     rr.ui.backgroundframe2:SetBackgroundColor(0, 0, 0, .35)    
     rr.ui.backgroundframe2:SetLayer(50)
 	rr.ui.backgroundframe2:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rrsettings.ui_x2, rrsettings.ui_y2)
@@ -586,19 +586,29 @@ function rr.ui.createsearch()
 		end		
 	end
 
+	-- search text
+	rr.ui.targetsearchtext = UI.CreateFrame("Text", "SearchRatingtext", rr.ui.context)
+    
+	rr.ui.targetsearchtext:SetText("Player Search:")
+	rr.ui.targetsearchtext:SetFontSize(14)
+    rr.ui.targetsearchtext:SetFontColor(1, 1, 1, 1)
+	rr.ui.targetsearchtext:SetWidth(100)
+	rr.ui.targetsearchtext:SetHeight(20)
+    rr.ui.targetsearchtext:SetBackgroundColor(0, 0, 0, .35)    
+    rr.ui.targetsearchtext:SetLayer(51)
+	rr.ui.targetsearchtext:SetPoint("TOPLEFT", rr.ui.backgroundframe2, "TOPLEFT", 0, 0)
+    rr.ui.targetsearchtext:SetVisible(true)
 	
 	-- search Frame
 	
 	rr.ui.targetratingframe2 = UI.CreateFrame("RiftTextfield", "SearchRating", rr.ui.context)
     
 	rr.ui.targetratingframe2:SetText("Search...")
-	--rr.ui.targetratingframe2:SetFontSize(15)
-    --rr.ui.targetratingframe2:SetFontColor(1, 1, 1, 1)
-	rr.ui.targetratingframe2:SetWidth(200)
-	rr.ui.targetratingframe2:SetHeight(22)
-    rr.ui.targetratingframe2:SetBackgroundColor(0, 0, 0, .35)    
+	rr.ui.targetratingframe2:SetWidth(105)
+	rr.ui.targetratingframe2:SetHeight(20)
+    rr.ui.targetratingframe2:SetBackgroundColor(0, 0, 0, 1)    
     rr.ui.targetratingframe2:SetLayer(51)
-	rr.ui.targetratingframe2:SetPoint("TOPLEFT", rr.ui.backgroundframe2, "TOPLEFT", 0, 0)
+	rr.ui.targetratingframe2:SetPoint("TOPLEFT", rr.ui.backgroundframe2, "TOPLEFT", 95, 0)
     rr.ui.targetratingframe2:SetVisible(true)
 	
 	function rr.ui.targetratingframe2.Event:TextfieldChange()
@@ -611,10 +621,10 @@ function rr.ui.createsearch()
 	
 	rr.ui.targetvotesframe2 = UI.CreateFrame("Text", "TargetVotes2", rr.ui.context)
     
-	rr.ui.targetvotesframe2:SetFontSize(15)
+	rr.ui.targetvotesframe2:SetFontSize(14)
     rr.ui.targetvotesframe2:SetFontColor(1, 1, 1, 1)
 	rr.ui.targetvotesframe2:SetWidth(200)
-	rr.ui.targetvotesframe2:SetHeight(22)
+	rr.ui.targetvotesframe2:SetHeight(20)
     rr.ui.targetvotesframe2:SetBackgroundColor(0, 0, 0, .35)    
     rr.ui.targetvotesframe2:SetLayer(51)
 	rr.ui.targetvotesframe2:SetPoint("BOTTOMLEFT", rr.ui.backgroundframe2, "BOTTOMLEFT", 0, 0)
@@ -625,8 +635,8 @@ function rr.ui.createsearch()
 	rr.ui.barbackground2 = UI.CreateFrame("Texture", "Barbackground2", rr.ui.context)
     
 	rr.ui.barbackground2:SetTexture("RiftReputation", "media/barbackground.png")
-	rr.ui.barbackground2:SetWidth(100)
-	rr.ui.barbackground2:SetHeight(32)
+	rr.ui.barbackground2:SetWidth(110)
+	rr.ui.barbackground2:SetHeight(30)
     rr.ui.barbackground2:SetLayer(51)
 	rr.ui.barbackground2:SetPoint("CENTER", rr.ui.backgroundframe2, "CENTER", 0, 0)
     rr.ui.barbackground2:SetVisible(true)
@@ -636,8 +646,8 @@ function rr.ui.createsearch()
 	rr.ui.respected2 = UI.CreateFrame("Texture", "Respected2", rr.ui.context)
     
 	rr.ui.respected2:SetTexture("RiftReputation", "media/respected.png")
-	rr.ui.respected2:SetWidth(50)
-	rr.ui.respected2:SetHeight(35)
+	rr.ui.respected2:SetWidth(45)
+	rr.ui.respected2:SetHeight(30)
     rr.ui.respected2:SetLayer(52)
 	rr.ui.respected2:SetPoint("CENTERRIGHT", rr.ui.backgroundframe2, "CENTERRIGHT", 0, 0)
     rr.ui.respected2:SetVisible(true)
@@ -647,8 +657,8 @@ function rr.ui.createsearch()
 	rr.ui.notorious2 = UI.CreateFrame("Texture", "Notorious2", rr.ui.context)
     
 	rr.ui.notorious2:SetTexture("RiftReputation", "media/notorious.png")
-	rr.ui.notorious2:SetWidth(50)
-	rr.ui.notorious2:SetHeight(35)
+	rr.ui.notorious2:SetWidth(45)
+	rr.ui.notorious2:SetHeight(30)
     rr.ui.notorious2:SetLayer(52)
 	rr.ui.notorious2:SetPoint("CENTERLEFT", rr.ui.backgroundframe2, "CENTERLEFT", 0, 0)
     rr.ui.notorious2:SetVisible(true)
@@ -667,20 +677,25 @@ function rr.ui.createsearch()
 	-- close button
 	rr.ui.searchclosebutton = UI.CreateFrame("Texture", "SearchCloseButton", rr.ui.context)
     
-	rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/X.png")
-	rr.ui.searchclosebutton:SetWidth(25)
-	rr.ui.searchclosebutton:SetHeight(25)
+	rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/outarrowup.png")
+	rr.ui.searchclosebutton:SetWidth(30)
+	rr.ui.searchclosebutton:SetHeight(30)
     rr.ui.searchclosebutton:SetLayer(53)
-	rr.ui.searchclosebutton:SetPoint("TOPRIGHT", rr.ui.backgroundframe2, "TOPLEFT", 0, 0)
+	rr.ui.searchclosebutton:SetPoint("TOPRIGHT", rr.ui.backgroundframe2, "TOPLEFT", 2, -4)
     rr.ui.searchclosebutton:SetVisible(true)
 	
 	function rr.ui.searchclosebutton.Event:LeftDown()
-		rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/Xdown.png")	
+		if rrsettings.searchclose == false or rrsettings.searchclose == nil then
+			rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/outarrowdown.png")
+		else
+			rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/inarrowdown.png")
+		end
+			
 	end
 	
 	function rr.ui.searchclosebutton.Event:LeftUp()
-		if rr.ui.searchclose == false or rr.ui.searchclose == nil then
-			rr.ui.searchclose = true
+		if rrsettings.searchclose == false or rrsettings.searchclose == nil then
+			rrsettings.searchclose = true
 			rr.ui.backgroundframe2:SetVisible(false)
 			rr.ui.targetratingframe2:SetVisible(false)
 			rr.ui.targetvotesframe2:SetVisible(false)
@@ -688,8 +703,10 @@ function rr.ui.createsearch()
 			rr.ui.respected2:SetVisible(false)
 			rr.ui.notorious2:SetVisible(false)
 			rr.ui.barindicator2:SetVisible(false)
+			rr.ui.targetsearchtext:SetVisible(false)
+			rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/inarrowup.png")
 		else
-			rr.ui.searchclose = false
+			rrsettings.searchclose = false
 			rr.ui.backgroundframe2:SetVisible(true)
 			rr.ui.targetratingframe2:SetVisible(true)
 			rr.ui.targetvotesframe2:SetVisible(true)
@@ -697,8 +714,9 @@ function rr.ui.createsearch()
 			rr.ui.respected2:SetVisible(true)
 			rr.ui.notorious2:SetVisible(true)
 			rr.ui.barindicator2:SetVisible(true)
+			rr.ui.targetsearchtext:SetVisible(true)
+			rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/outarrowup.png")
 		end
-		rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/X.png")
 	end
 
 end
@@ -712,8 +730,6 @@ function rr.ui.create()
 
 	if not rrsettings.ui_x then rrsettings.ui_x = defaults.ui_x end
 	if not rrsettings.ui_y then rrsettings.ui_y = defaults.ui_y end
-	--if not rrsettings.ui_xt then rrsettings.ui_xt = defaults.ui_xt end
-	--if not rrsettings.ui_yt then rrsettings.ui_yt = defaults.ui_yt end
 	if not rrsettings.locked then rrsettings.locked = defaults.locked end
 	
 	-- Background Frame
@@ -722,8 +738,8 @@ function rr.ui.create()
     
 	rr.ui.backgroundframe:SetFontSize(16)
     rr.ui.backgroundframe:SetFontColor(1, 1, 1, 0)
-	rr.ui.backgroundframe:SetWidth(225)
-	rr.ui.backgroundframe:SetHeight(75)
+	rr.ui.backgroundframe:SetWidth(223)
+	rr.ui.backgroundframe:SetHeight(70)
     rr.ui.backgroundframe:SetBackgroundColor(0, 0, 0, .35)    
     rr.ui.backgroundframe:SetLayer(50)
 	rr.ui.backgroundframe:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rrsettings.ui_x, rrsettings.ui_y)
@@ -766,15 +782,52 @@ function rr.ui.create()
 		end		
 	end
 
+	-- tooltip area
+	rr.ui.targettooltip1 = UI.CreateFrame("Text", "TargetTooltip1", rr.ui.context)
+    
+	rr.ui.targettooltip1:SetFontSize(12)
+    rr.ui.targettooltip1:SetFontColor(1, 1, 1, 1)
+	rr.ui.targettooltip1:SetWidth(170)
+	rr.ui.targettooltip1:SetHeight(20)
+	rr.ui.targettooltip1:SetText("")
+    rr.ui.targettooltip1:SetBackgroundColor(0, 0, 0, .7)    
+    rr.ui.targettooltip1:SetLayer(51)
+	rr.ui.targettooltip1:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPRIGHT", 10, 0)
+    rr.ui.targettooltip1:SetVisible(false)
+	
+	rr.ui.targettooltip2 = UI.CreateFrame("Text", "TargetTooltip2", rr.ui.context)
+    
+	rr.ui.targettooltip2:SetFontSize(12)
+    rr.ui.targettooltip2:SetFontColor(1, 1, 1, 1)
+	rr.ui.targettooltip2:SetWidth(170)
+	rr.ui.targettooltip2:SetHeight(20)
+	rr.ui.targettooltip2:SetText("")
+    rr.ui.targettooltip2:SetBackgroundColor(0, 0, 0, .7)    
+    rr.ui.targettooltip2:SetLayer(51)
+	rr.ui.targettooltip2:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPRIGHT", 10, 20)
+    rr.ui.targettooltip2:SetVisible(false)
+	
+	rr.ui.targettooltip3 = UI.CreateFrame("Text", "TargetTooltip3", rr.ui.context)
+    
+	rr.ui.targettooltip3:SetFontSize(12)
+    rr.ui.targettooltip3:SetFontColor(1, 1, 1, 1)
+	rr.ui.targettooltip3:SetWidth(170)
+	rr.ui.targettooltip3:SetHeight(20)
+	rr.ui.targettooltip3:SetText("")
+    rr.ui.targettooltip3:SetBackgroundColor(0, 0, 0, .7)    
+    rr.ui.targettooltip3:SetLayer(51)
+	rr.ui.targettooltip3:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPRIGHT", 10, 40)
+    rr.ui.targettooltip3:SetVisible(false)
+	
 	
 	-- Target's name text Frame
 	
 	rr.ui.targetratingframe = UI.CreateFrame("Text", "TargetRating", rr.ui.context)
     
-	rr.ui.targetratingframe:SetFontSize(15)
+	rr.ui.targetratingframe:SetFontSize(14)
     rr.ui.targetratingframe:SetFontColor(1, 1, 1, 1)
 	rr.ui.targetratingframe:SetWidth(200)
-	rr.ui.targetratingframe:SetHeight(22)
+	rr.ui.targetratingframe:SetHeight(20)
     rr.ui.targetratingframe:SetBackgroundColor(0, 0, 0, .35)    
     rr.ui.targetratingframe:SetLayer(51)
 	rr.ui.targetratingframe:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPLEFT", 0, 0)
@@ -784,10 +837,10 @@ function rr.ui.create()
 	
 	rr.ui.targetvotesframe = UI.CreateFrame("Text", "TargetVotes", rr.ui.context)
     
-	rr.ui.targetvotesframe:SetFontSize(15)
+	rr.ui.targetvotesframe:SetFontSize(14)
     rr.ui.targetvotesframe:SetFontColor(1, 1, 1, 1)
 	rr.ui.targetvotesframe:SetWidth(200)
-	rr.ui.targetvotesframe:SetHeight(22)
+	rr.ui.targetvotesframe:SetHeight(20)
     rr.ui.targetvotesframe:SetBackgroundColor(0, 0, 0, .35)    
     rr.ui.targetvotesframe:SetLayer(51)
 	rr.ui.targetvotesframe:SetPoint("BOTTOMLEFT", rr.ui.backgroundframe, "BOTTOMLEFT", 0, 0)
@@ -798,10 +851,10 @@ function rr.ui.create()
 	rr.ui.barbackground = UI.CreateFrame("Texture", "Barbackground", rr.ui.context)
     
 	rr.ui.barbackground:SetTexture("RiftReputation", "media/barbackground.png")
-	rr.ui.barbackground:SetWidth(100)
-	rr.ui.barbackground:SetHeight(32)
+	rr.ui.barbackground:SetWidth(110)
+	rr.ui.barbackground:SetHeight(30)
     rr.ui.barbackground:SetLayer(51)
-	rr.ui.barbackground:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPLEFT", 50, 22)
+	rr.ui.barbackground:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPLEFT", 45, 20)
     rr.ui.barbackground:SetVisible(false)
 	
 	-- respected Frame
@@ -809,10 +862,10 @@ function rr.ui.create()
 	rr.ui.respected = UI.CreateFrame("Texture", "Respected", rr.ui.context)
     
 	rr.ui.respected:SetTexture("RiftReputation", "media/respected.png")
-	rr.ui.respected:SetWidth(50)
-	rr.ui.respected:SetHeight(35)
+	rr.ui.respected:SetWidth(45)
+	rr.ui.respected:SetHeight(30)
     rr.ui.respected:SetLayer(52)
-	rr.ui.respected:SetPoint("TOPLEFT", rr.ui.barbackground, "TOPRIGHT", 0, -2)
+	rr.ui.respected:SetPoint("TOPLEFT", rr.ui.barbackground, "TOPRIGHT", 0, 0)
     rr.ui.respected:SetVisible(false)
 
 	-- notorious Frame
@@ -820,8 +873,8 @@ function rr.ui.create()
 	rr.ui.notorious = UI.CreateFrame("Texture", "Notorious", rr.ui.context)
     
 	rr.ui.notorious:SetTexture("RiftReputation", "media/notorious.png")
-	rr.ui.notorious:SetWidth(50)
-	rr.ui.notorious:SetHeight(35)
+	rr.ui.notorious:SetWidth(45)
+	rr.ui.notorious:SetHeight(30)
     rr.ui.notorious:SetLayer(52)
 	rr.ui.notorious:SetPoint("TOPLEFT", rr.ui.backgroundframe, "TOPLEFT", 0, 20)
     rr.ui.notorious:SetVisible(false)
@@ -829,20 +882,24 @@ function rr.ui.create()
 	-- close button
 	rr.ui.closebutton = UI.CreateFrame("Texture", "CloseButton", rr.ui.context)
     
-	rr.ui.closebutton:SetTexture("RiftReputation", "media/X.png")
-	rr.ui.closebutton:SetWidth(25)
-	rr.ui.closebutton:SetHeight(25)
-    rr.ui.closebutton:SetLayer(53)
-	rr.ui.closebutton:SetPoint("TOPRIGHT", rr.ui.backgroundframe, "TOPLEFT", 0, 0)
+	rr.ui.closebutton:SetTexture("RiftReputation", "media/outarrowup.png")
+	rr.ui.closebutton:SetWidth(30)
+	rr.ui.closebutton:SetHeight(30)
+    rr.ui.closebutton:SetLayer(50)
+	rr.ui.closebutton:SetPoint("TOPRIGHT", rr.ui.backgroundframe, "TOPLEFT", 2, -4)
     rr.ui.closebutton:SetVisible(true)
 	
 	function rr.ui.closebutton.Event:LeftDown()
-		rr.ui.closebutton:SetTexture("RiftReputation", "media/Xdown.png")	
+		if rrsettings.targetclose == false or rrsettings.targetclose == nil then
+			rr.ui.closebutton:SetTexture("RiftReputation", "media/outarrowdown.png")
+		else
+			rr.ui.closebutton:SetTexture("RiftReputation", "media/inarrowdown.png")
+		end	
 	end
 	
 	function rr.ui.closebutton.Event:LeftUp()
-		if rr.ui.targetclose == false or rr.ui.targetclose == nil then
-			rr.ui.targetclose = true
+		if rrsettings.targetclose == false or rrsettings.targetclose == nil then
+			rrsettings.targetclose = true
 			rr.ui.backgroundframe:SetVisible(false)
 			rr.ui.targetratingframe:SetVisible(false)
 			rr.ui.targetvotesframe:SetVisible(false)
@@ -853,8 +910,9 @@ function rr.ui.create()
 			rr.ui.neutralbutton:SetVisible(false)
 			rr.ui.upbutton:SetVisible(false)
 			rr.ui.downbutton:SetVisible(false)
+			rr.ui.closebutton:SetTexture("RiftReputation", "media/inarrowup.png")
 		else
-			rr.ui.targetclose = false
+			rrsettings.targetclose = false
 			rr.ui.backgroundframe:SetVisible(true)
 			rr.ui.targetratingframe:SetVisible(true)
 			rr.ui.targetvotesframe:SetVisible(true)
@@ -865,16 +923,17 @@ function rr.ui.create()
 			rr.ui.neutralbutton:SetVisible(true)
 			rr.ui.upbutton:SetVisible(true)
 			rr.ui.downbutton:SetVisible(true)
+			rr.ui.closebutton:SetTexture("RiftReputation", "media/outarrowup.png")
 		end
-		rr.ui.closebutton:SetTexture("RiftReputation", "media/X.png")
+
 	end
 	
 	-- down vote button
 	rr.ui.downbutton = UI.CreateFrame("Texture", "DownButton", rr.ui.context)
     
 	rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
-	rr.ui.downbutton:SetWidth(25)
-	rr.ui.downbutton:SetHeight(25)
+	rr.ui.downbutton:SetWidth(23)
+	rr.ui.downbutton:SetHeight(23)
     rr.ui.downbutton:SetLayer(52)
 	rr.ui.downbutton:SetPoint("BOTTOMRIGHT", rr.ui.backgroundframe, "BOTTOMRIGHT", 0, 0)
     rr.ui.downbutton:SetVisible(false)
@@ -913,13 +972,30 @@ function rr.ui.create()
 		end
 		
 	end
+	function rr.ui.downbutton.Event:MouseIn()
+		rr.ui.targettooltip1:SetVisible(true)
+		rr.ui.targettooltip2:SetVisible(true)
+		rr.ui.targettooltip3:SetVisible(true)
+		rr.ui.targettooltip1:SetText("Give this player a negative vote.")
+		rr.ui.targettooltip2:SetText("The more often you use this,")
+		rr.ui.targettooltip3:SetText("the less it's worth")
+	end
+	
+	function rr.ui.downbutton.Event:MouseOut()
+		rr.ui.targettooltip1:SetVisible(false)
+		rr.ui.targettooltip1:SetText("")
+		rr.ui.targettooltip2:SetVisible(false)
+		rr.ui.targettooltip2:SetText("")
+		rr.ui.targettooltip3:SetVisible(false)
+		rr.ui.targettooltip3:SetText("")
+	end
 	
 	-- up vote button
 	rr.ui.upbutton = UI.CreateFrame("Texture", "UpButton", rr.ui.context)
     
 	rr.ui.upbutton:SetTexture("RiftReputation", "media/thumbsup.png")
-	rr.ui.upbutton:SetWidth(25)
-	rr.ui.upbutton:SetHeight(25)
+	rr.ui.upbutton:SetWidth(23)
+	rr.ui.upbutton:SetHeight(23)
     rr.ui.upbutton:SetLayer(52)
 	rr.ui.upbutton:SetPoint("TOPRIGHT", rr.ui.backgroundframe, "TOPRIGHT", 0, 0)
     rr.ui.upbutton:SetVisible(false)
@@ -959,12 +1035,30 @@ function rr.ui.create()
 		
 	end
 	
+	function rr.ui.upbutton.Event:MouseIn()
+		rr.ui.targettooltip1:SetVisible(true)
+		rr.ui.targettooltip2:SetVisible(true)
+		rr.ui.targettooltip3:SetVisible(true)
+		rr.ui.targettooltip1:SetText("Give this player a positive vote.")
+		rr.ui.targettooltip2:SetText("The more often you use this,")
+		rr.ui.targettooltip3:SetText("the less it's worth")
+	end
+	
+	function rr.ui.upbutton.Event:MouseOut()
+		rr.ui.targettooltip1:SetVisible(false)
+		rr.ui.targettooltip1:SetText("")
+		rr.ui.targettooltip2:SetVisible(false)
+		rr.ui.targettooltip2:SetText("")
+		rr.ui.targettooltip3:SetVisible(false)
+		rr.ui.targettooltip3:SetText("")
+	end
+	
 	-- neutral vote button
 	rr.ui.neutralbutton = UI.CreateFrame("Texture", "NeutralButton", rr.ui.context)
     
 	rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
-	rr.ui.neutralbutton:SetWidth(25)
-	rr.ui.neutralbutton:SetHeight(25)
+	rr.ui.neutralbutton:SetWidth(23)
+	rr.ui.neutralbutton:SetHeight(23)
     rr.ui.neutralbutton:SetLayer(52)
 	rr.ui.neutralbutton:SetPoint("CENTERRIGHT", rr.ui.backgroundframe, "CENTERRIGHT", 0, 0)
     rr.ui.neutralbutton:SetVisible(false)
@@ -1003,6 +1097,24 @@ function rr.ui.create()
 		end
 	end
 	
+	function rr.ui.neutralbutton.Event:MouseIn()
+		rr.ui.targettooltip1:SetVisible(true)
+		rr.ui.targettooltip2:SetVisible(true)
+		rr.ui.targettooltip3:SetVisible(true)
+		rr.ui.targettooltip1:SetText("Give this player a neutral vote.")
+		rr.ui.targettooltip2:SetText("This is a standard vote, use it")
+		rr.ui.targettooltip3:SetText("as often as you want")
+	end
+	
+	function rr.ui.neutralbutton.Event:MouseOut()
+		rr.ui.targettooltip1:SetVisible(false)
+		rr.ui.targettooltip1:SetText("")
+		rr.ui.targettooltip2:SetVisible(false)
+		rr.ui.targettooltip2:SetText("")
+		rr.ui.targettooltip3:SetVisible(false)
+		rr.ui.targettooltip3:SetText("")
+	end
+	
 	-- bar indicator Frame
 	
 	rr.ui.barindicator = UI.CreateFrame("Texture", "barindicator", rr.ui.context)
@@ -1017,23 +1129,23 @@ end
 
 function rr.ui.update()
 	
-	local barxoffset = 50
+	local barxoffset = 55
 	local total = 0
 	local votes = 0
 	local player = Inspect.Unit.Detail('player').name
-	local barxoffset2 = 50
+	local barxoffset2 = 55
 	local total2 = 0
 	local votes2 = 0
 
 	if Inspect.Unit.Detail('player.target') and Inspect.Unit.Detail('player.target').player == true and Inspect.Unit.Detail('player.target').faction == Inspect.Unit.Detail('player').faction and Inspect.Unit.Detail('player.target').level == 50 and string.find(Inspect.Unit.Detail('player.target').name, "@") == nil
 	then
 		rr.ui.closebutton:SetVisible(true)
-		if rr.ui.targetclose == false or rr.ui.targetclose == nil then
+		if rrsettings.targetclose == false or rrsettings.targetclose == nil then
 			local target = Inspect.Unit.Detail('player.target').name
-			rr.ui.backgroundframe:SetVisible(true)
+			
 			rr.ui.targetratingframe:SetText(target .. "'s Repute:")
 			rr.ui.targetratingframe:SetVisible(true)
-			
+			rr.ui.backgroundframe:SetVisible(true)
 			rr.ui.targetvotesframe:SetVisible(true)
 			rr.ui.barbackground:SetVisible(true)
 			rr.ui.respected:SetVisible(true)
@@ -1047,7 +1159,7 @@ function rr.ui.update()
 				total = (rrplayerdata[target].upscore + rrplayerdata[target].neutralscore + rrplayerdata[target].downscore)
 				rrplayerdata[target].uppercent = (rrplayerdata[target].upscore / total)
 				rrplayerdata[target].neutralpercent = (rrplayerdata[target].neutralscore / total)
-				barxoffset = 100 * ((.5 * rrplayerdata[target].neutralpercent) + rrplayerdata[target].uppercent)
+				barxoffset = 110 * ((.5 * rrplayerdata[target].neutralpercent) + rrplayerdata[target].uppercent)
 				votes = (rrplayerdata[target].numuprecieved + rrplayerdata[target].numdownrecieved + rrplayerdata[target].numneutralrecieved - 3)
 				if votes < 0 then votes = 0 end
 			end	
@@ -1076,6 +1188,19 @@ function rr.ui.update()
 				rr.ui.neutralbutton:SetTexture("RiftReputation", "media/neutral.png")
 				rr.ui.downbutton:SetTexture("RiftReputation", "media/thumbsdown.png")
 			end
+			rr.ui.closebutton:SetTexture("RiftReputation", "media/outarrowup.png")
+		else 
+		rr.ui.backgroundframe:SetVisible(false)
+		rr.ui.targetratingframe:SetVisible(false)
+		rr.ui.targetvotesframe:SetVisible(false)
+		rr.ui.barbackground:SetVisible(false)
+		rr.ui.respected:SetVisible(false)
+		rr.ui.notorious:SetVisible(false)
+	    rr.ui.barindicator:SetVisible(false)
+		rr.ui.neutralbutton:SetVisible(false)
+		rr.ui.upbutton:SetVisible(false)
+		rr.ui.downbutton:SetVisible(false)
+		rr.ui.closebutton:SetTexture("RiftReputation", "media/inarrowup.png")
 		end
 
 	else
@@ -1091,23 +1216,45 @@ function rr.ui.update()
 		rr.ui.downbutton:SetVisible(false)
 		rr.ui.closebutton:SetVisible(false)
 	end
+	
+	if rrsettings.searchclose == false or rrsettings.searchclose == nil then
+		if rr.ui.searchtext ~= nil and rrplayerdata[rr.ui.searchtext:gsub("^%l", string.upper)] ~= nil then
+			total2 = (rrplayerdata[rr.ui.searchtext].upscore + rrplayerdata[rr.ui.searchtext].neutralscore + rrplayerdata[rr.ui.searchtext].downscore)
+			rrplayerdata[rr.ui.searchtext].uppercent = (rrplayerdata[rr.ui.searchtext].upscore / total2)
+			rrplayerdata[rr.ui.searchtext].neutralpercent = (rrplayerdata[rr.ui.searchtext].neutralscore / total2)
+			barxoffset2 = 110 * ((.5 * rrplayerdata[rr.ui.searchtext].neutralpercent) + rrplayerdata[rr.ui.searchtext].uppercent)
+			votes2 = (rrplayerdata[rr.ui.searchtext].numuprecieved + rrplayerdata[rr.ui.searchtext].numdownrecieved + rrplayerdata[rr.ui.searchtext].numneutralrecieved - 3)
+			if votes2 < 0 then votes2 = 0 end
 
-	if (rr.ui.searchclose == false or rr.ui.searchclose == nil) and rr.ui.searchtext ~= nil and rrplayerdata[rr.ui.searchtext:gsub("^%l", string.upper)] ~= nil then
-		total2 = (rrplayerdata[rr.ui.searchtext].upscore + rrplayerdata[rr.ui.searchtext].neutralscore + rrplayerdata[rr.ui.searchtext].downscore)
-		rrplayerdata[rr.ui.searchtext].uppercent = (rrplayerdata[rr.ui.searchtext].upscore / total2)
-		rrplayerdata[rr.ui.searchtext].neutralpercent = (rrplayerdata[rr.ui.searchtext].neutralscore / total2)
-		barxoffset2 = 100 * ((.5 * rrplayerdata[rr.ui.searchtext].neutralpercent) + rrplayerdata[rr.ui.searchtext].uppercent)
-		votes2 = (rrplayerdata[rr.ui.searchtext].numuprecieved + rrplayerdata[rr.ui.searchtext].numdownrecieved + rrplayerdata[rr.ui.searchtext].numneutralrecieved - 3)
-		if votes2 < 0 then votes2 = 0 end
+			rr.ui.targetvotesframe2:SetText("Total Votes: " .. votes2)
+			rr.ui.barindicator2:SetPoint("CENTER", rr.ui.barbackground2, "CENTERLEFT", barxoffset2, 0)
+			
+		else
+			rr.ui.targetvotesframe2:SetText("Total Votes: 0")
+			rr.ui.barindicator2:SetPoint("CENTER", rr.ui.barbackground2, "CENTERLEFT", 55, 0)
+		
 
-		rr.ui.targetvotesframe2:SetText("Total Votes: " .. votes2)
-		rr.ui.barindicator2:SetPoint("CENTER", rr.ui.barbackground2, "CENTERLEFT", barxoffset2, 0)
+		end
+		rr.ui.backgroundframe2:SetVisible(true)
+		rr.ui.targetratingframe2:SetVisible(true)
+		rr.ui.targetvotesframe2:SetVisible(true)
+		rr.ui.barbackground2:SetVisible(true)
+		rr.ui.respected2:SetVisible(true)
+		rr.ui.notorious2:SetVisible(true)
+		rr.ui.barindicator2:SetVisible(true)
+		rr.ui.targetsearchtext:SetVisible(true)
+		rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/outarrowup.png")
 	else
-		rr.ui.targetvotesframe2:SetText("Total Votes: 0")
-		rr.ui.barindicator2:SetPoint("CENTER", rr.ui.barbackground2, "CENTERLEFT", 50, 0)
+		rr.ui.backgroundframe2:SetVisible(false)
+		rr.ui.targetratingframe2:SetVisible(false)
+		rr.ui.targetvotesframe2:SetVisible(false)
+		rr.ui.barbackground2:SetVisible(false)
+		rr.ui.respected2:SetVisible(false)
+		rr.ui.notorious2:SetVisible(false)
+		rr.ui.barindicator2:SetVisible(false)
+		rr.ui.targetsearchtext:SetVisible(false)
+		rr.ui.searchclosebutton:SetTexture("RiftReputation", "media/inarrowup.png")
 	end
-
-
 end
 
 -- utilities
