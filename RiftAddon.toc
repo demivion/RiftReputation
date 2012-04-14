@@ -17,4 +17,6 @@ SavedVariables = {
   RiftReputation_voterdata = "character",  
   RiftReputation_votes = "character",
   rrsettings = "shard",
+  RiftReputation_blacklist = "shard",
+  RiftReputation_whitelist = "shard",
 }

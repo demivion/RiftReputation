@@ -27,34 +27,13 @@ local defaults = {
 	player = Inspect.Unit.Detail("player").name,
 }
 
-if not rrsettings then
-	rrsettings = defaults
-end
-
-if not rrplayerdata then
-	rrplayerdata = {}
-end
-
-if not rrvoterdata then
-	rrplayerdata = {}
-end
-
-if not rrplayeraverage then
-	rrplayeraverage = {}
-end
-
-if not rrvotes then
-	rrvotes = {}
-	
-end
-
 -- main
 
 function rr.addonloaded(addon) 
 	if (addon == "RiftReputation") then
 
 		rr.printversion()
-		--rr.variablestest()
+		rr.variablestest2()
 		rr.unconvert()
 		rr.ui.create()
 		rr.ui.createsearch()
@@ -85,13 +64,16 @@ function rr.printversion()
 	print("RiftReputation v" .. rr.version .. " loaded /rr for options.")
 end
 
-function rr.variablestest(player)
+function rr.variablestest2()
+
 	if not rrplayerdata then rrplayerdata = {} end
 	if not rrvoterdata then rrvoterdata = {} end
-	if not rrplayeraverage then rrplayeraverage = {} end
 	if not rrsettings then rrsettings = {} end
 	if not rrvotes then rrvotes = {} end
-	
+end
+
+function rr.variablestest(player)
+
 	if rrplayerdata[player] == nil 
 	then
 		rrplayerdata[player] = {	
@@ -199,15 +181,20 @@ function rr.ratestore(player, voter, scoretype)
 		downrecieved = 1
 		
 		for voter, value in pairs(rrvotes[player]) do
-			if value == "1" then
-				upgiven = upgiven + 1
-				uprecieved = uprecieved +1
-			elseif value == "2" then
-				neutralgiven = neutralgiven + 1
-				neutralrecieved = neutralrecieved + 1
-			elseif value == "3" then
-				downgiven = downgiven + 1
-				downrecieved = downrecieved + 1
+			
+			if rr.checklist(voter) == true 
+			then
+			
+				if value == "1" then
+					upgiven = upgiven + 1
+					uprecieved = uprecieved +1
+				elseif value == "2" then
+					neutralgiven = neutralgiven + 1
+					neutralrecieved = neutralrecieved + 1
+				elseif value == "3" then
+					downgiven = downgiven + 1
+					downrecieved = downrecieved + 1
+				end
 			end
 		end
 		
@@ -230,20 +217,22 @@ function rr.ratestore(player, voter, scoretype)
 
 		
 		for voter, value in pairs(rrvotes[player]) do
-			
-			rrvoterdata[voter].upscoreweight = (((.3*rrvoterdata[voter].neutralgiven + .3*rrvoterdata[voter].downgiven)/rrvoterdata[voter].upgiven^.85)*(rrplayerdata[voter].upscore/rrplayerdata[voter].downscore)^(1/6))^(1/2.2)
-			rrvoterdata[voter].neutralscoreweight = 1
-			rrvoterdata[voter].downscoreweight = (((.3*rrvoterdata[voter].upgiven + .3*rrvoterdata[voter].neutralgiven)/rrvoterdata[voter].downgiven^1.25)*(rrplayerdata[voter].upscore/rrplayerdata[voter].downscore)^(1/6))^(1/2.2)
-			
-			if rrvoterdata[voter].upscoreweight > 3 then rrvoterdata[voter].upscoreweight = 3 end
-			if rrvoterdata[voter].downscoreweight > 3 then rrvoterdata[voter].upscoreweight = 3 end
-			
-			if rrvotes[player][voter] == "1" then
-				rrplayerdata[player].upscore = rrplayerdata[player].upscore + rrvoterdata[voter].upscoreweight
-			elseif rrvotes[player][voter] == "2" then
-				rrplayerdata[player].neutralscore = rrplayerdata[player].neutralscore + rrvoterdata[voter].neutralscoreweight
-			elseif rrvotes[player][voter] == "3" then
-				rrplayerdata[player].downscore = rrplayerdata[player].downscore + rrvoterdata[voter].downscoreweight
+			if rr.checklist(voter) == true 
+			then
+				rrvoterdata[voter].upscoreweight = (((.3*rrvoterdata[voter].neutralgiven + .3*rrvoterdata[voter].downgiven)/rrvoterdata[voter].upgiven^.85)*(rrplayerdata[voter].upscore/rrplayerdata[voter].downscore)^(1/6))^(1/2.2)
+				rrvoterdata[voter].neutralscoreweight = 1
+				rrvoterdata[voter].downscoreweight = (((.3*rrvoterdata[voter].upgiven + .3*rrvoterdata[voter].neutralgiven)/rrvoterdata[voter].downgiven^1.25)*(rrplayerdata[voter].upscore/rrplayerdata[voter].downscore)^(1/6))^(1/2.2)
+				
+				if rrvoterdata[voter].upscoreweight > 3 then rrvoterdata[voter].upscoreweight = 3 end
+				if rrvoterdata[voter].downscoreweight > 3 then rrvoterdata[voter].upscoreweight = 3 end
+				
+				if rrvotes[player][voter] == "1" then
+					rrplayerdata[player].upscore = rrplayerdata[player].upscore + rrvoterdata[voter].upscoreweight
+				elseif rrvotes[player][voter] == "2" then
+					rrplayerdata[player].neutralscore = rrplayerdata[player].neutralscore + rrvoterdata[voter].neutralscoreweight
+				elseif rrvotes[player][voter] == "3" then
+					rrplayerdata[player].downscore = rrplayerdata[player].downscore + rrvoterdata[voter].downscoreweight
+				end
 			end
 		end	
 			
@@ -257,10 +246,11 @@ function rr.ratestore(player, voter, scoretype)
 
 end
 
-function rr.rateshow()
-
-print(table.show(rrplayerdata))
-print(table.show(rrvoterdata))
+function rr.showlist()
+print("Your Blacklist:")
+print(table.show(RiftReputation_blacklist))
+print("Your Whitelist:")
+print(table.show(RiftReputation_whitelist))
 end
 
 function rr.playershow(player)
@@ -280,6 +270,7 @@ end
 
 function rr.broadcast()
 	if rr.incombat == false then
+		rr.variablestest2()
 		local selfvotes = {}
 		local votesinline
 		local votesdata
@@ -288,7 +279,6 @@ function rr.broadcast()
 		local votes = rrvotes
 		local size
 		
-		--selfvotes.id = rrsettings.player
 		for player, voter in pairs(votes) do
 			
 			if votes[player][rrsettings.player] ~= nil then
@@ -298,10 +288,8 @@ function rr.broadcast()
 				end
 				
 				selfvotes[rrsettings.player][zlib.deflate(9)(player, "finish")] = votes[player][rrsettings.player]
-				--print(table.show(selfvotes))	
 				testinline = Utility.Serialize.Inline(selfvotes)
 				testdata = zlib.deflate(9)(testinline, "finish")
-				--testdata2 = zlib.deflate(9)(testdata, "finish")
 				size = Utility.Message.Size(nil, "rrep", testdata)
 				
 				if size >= 1000 then
@@ -314,10 +302,8 @@ function rr.broadcast()
 		
 		end
 		--print("sent:")
-		--print(table.show(selfvotes))
 		votesinline = Utility.Serialize.Inline(selfvotes)
 		votesdata = zlib.deflate(9)(votesinline, "finish")
-		--votesdata2 = zlib.deflate(9)(votesdata, "finish")
 		--print(Utility.Message.Size(nil, "rrep", string.format("%s%s", "x", votesdata)))
 		--print("sent: " .. votesdata)
 		Command.Message.Broadcast("yell", nil, "rrep", string.format("%s%s", "x", votesdata))
@@ -334,7 +320,7 @@ local voter
 	--print("message recieved from: " .. from)
 
 
-	if rrsettings.active == true and from ~= self
+	if rrsettings.active == true and from ~= self and rr.checklist(from) == true
 	then
 		datainflated = zlib.inflate()(string.sub(data, 2), "finish")
 		--datainflated2 = zlib.inflate()(datainflated, "finish")
@@ -361,6 +347,74 @@ local voter
 
 end
 
+function rr.blacklist(player)
+	
+	if RiftReputation_blacklist == nil then RiftReputation_blacklist = {} end
+	if RiftReputation_blacklist[player] == nil 
+	then 
+		RiftReputation_blacklist[player] = true
+		print(player .. " added to blacklist. You will no longer recieve ratings from this player.")
+	elseif RiftReputation_blacklist[player] == true
+	then
+		RiftReputation_blacklist[player] = nil
+		print(player .. " removed from blacklist")
+	end
+end
+
+function rr.whitelist(player)
+	
+	if RiftReputation_whitelist == nil then RiftReputation_whitelist = {} end
+	if RiftReputation_whitelist[player] == nil 
+	then 
+		RiftReputation_whitelist[player] = true
+		print(player .. " added to whitelist. You will no longer recieve ratings from anyone unless they are on this list.")
+	elseif RiftReputation_whitelist[player] == true
+	then
+		RiftReputation_whitelist[player] = nil
+		print(player .. " removed from whitelist.")
+	end
+	
+end
+
+function rr.checklist(player)
+	local count = 0
+	if RiftReputation_whitelist == nil then RiftReputation_whitelist = {} end
+	if RiftReputation_blacklist == nil then RiftReputation_blacklist = {} end
+	
+	for player, value in pairs(RiftReputation_whitelist) do
+		if value == true then count = count + 1 end
+	end
+	
+	if count == 0
+	then 
+		if RiftReputation_blacklist[player] == nil or RiftReputation_blacklist == {}
+		then 
+			--print(player .. " checked true1")
+			return true
+		elseif RiftReputation_blacklist[player] == true
+		then
+			
+			--print(player .. " checked false1")
+			return false
+		end
+	elseif player == Inspect.Unit.Detail("player").name
+	then
+		return true
+	else
+		if RiftReputation_whitelist[player] == nil
+		then
+			--print(player .. " checked false2")
+			return false
+			
+		elseif RiftReputation_whitelist[player] == true 
+		then
+			--print(player .. " checked true2")
+			return true
+		end
+	end
+	
+end
+
 -- slash cmds
 
 function rr.slash(params)
@@ -378,12 +432,27 @@ function rr.slash(params)
 	elseif args[0] == "off" and argnumber == 1
 	then
 		rr.off()
-	elseif args[0] == "erase" and argnumber == 1
+	elseif args[0] == "eraseall" and argnumber == 1
 	then
 		rr.erase()
+	elseif args[0] == "eraseUIsettings" and argnumber == 1
+	then
+		rr.erasesettings()
+	elseif args[0] == "erasevotes" and argnumber == 1
+	then
+		rr.erasevotes()
+	elseif args[0] == "erasereputations" and argnumber == 1
+	then
+		rr.erasereputation()
 	elseif args[0] == "list" and argnumber == 1
 	then
-		rr.rateshow()
+		rr.showlist()
+	elseif args[0] == "blacklist" and argnumber == 2
+	then
+		rr.blacklist(args[1]:gsub("^%l", string.upper))
+	elseif args[0] == "whitelist" and argnumber == 2
+	then
+		rr.whitelist(args[1]:gsub("^%l", string.upper))
 	elseif args[0] == "vote" and argnumber == 2 and Inspect.Unit.Detail("player.target").player == true
 	then
 	
@@ -441,13 +510,32 @@ function rr.help()
 
 	print("RiftReputation: A player reputation system.")
 	print("Right click and drag to move UI frames.")
+	print("Click the red double arrows to show/hide UI frames.")
+	print("Your target's reputation frame will only show up while you are targeting someone.")
+	print("---------------------")
+	print("General Functions")
+	print("---------------------")
 	print("[/rr on]")
-	print("[/rr off]")
-	print("[/rr list] to list all data")
-	print("[/rr erase] use this twice to erase all of your saved data and restore to defaults. (note: this does not erase your voting history from other players)")
+	print("[/rr off]")	
 	print("[/rr show player] to view a specific player's reputation")
 	print("[/rr vote up/neutral/down]   to give your target a positive/neutral/negative vote.")
 	print("[/rr lock/unlock] to either lock or unlock the UI frames")
+	print("---------------------")
+	print("Blacklist/Whitelist Functions")
+	print("---------------------")
+	print("NOTE: If any players are in your whitelist then you won't recieve votes from ANY players who are NOT in your whitelist. This will greatly diminish the use of this addon.")
+	print("[/rr list] to view your black and white lists")
+	print("[/rr blacklist player] to blacklist that player. Use it again to remove a player from your blacklist.")
+	print("[/rr whitelist player] to whitelist that player. Use it againt to remove a player from your whitelist.")
+	print("---------------------")
+	print("Saved Data Management Functions")
+	print("---------------------")
+	print("NOTE: These functions only erase your local data, it will not alter your reputation with other players. Do not use these unless you are absolutely sure that you want to permenantly erase reputations you have given or recieved for other people. It's best just to leave these alone unless you belive that you have recieved corrupt/exploited votes (highly unlikely) and want to start over from scratch.")
+	print("[/rr eraseall] use this twice to erase ALL of your saved data and restore the addon to defaults. (note: this does not erase your voting history from other players, however you will not broadcast those votes to anyone else in the future)")
+	print("[/rr eraseUIsettings] use this to set your UI back to defaults.")
+	print("[/rr erasevotes] use this to erase all the votes you have made. (note: this does not erase your voting history from other players, however you will not broadcast those votes to anyone else in the future)")
+	print("[/rr erasereputations] use this to erase all the votes you have recieved from other players.")
+
 
 
 end
@@ -500,14 +588,80 @@ function rr.off()
 		
 end
 
-function rr.erase()
+function rr.erasevotes()
 
 
 
 
 	if rr.eraseconfirm == true then
 	
-		rrplayeraverage = {}
+		rrplayerdata = {}
+		for players, voters in pairs(rrvotes) do
+				rrvotes[players][Inspect.Unit.Detail("player")] = nil
+		end
+		rrvoterdata = {}
+		
+		RiftReputation_playerdata = ""
+		RiftReputation_voterdata = ""
+		RiftReputation_votes = ""
+		print("All your votes Erased! /reloadui to see changes.")
+		rr.eraseconfirm = false
+	else
+	print("Warning! This will erase all the votes you have made!")
+	print("type /rr erasevotes again to confirm.")
+	rr.eraseconfirm = true
+	end
+end
+
+function rr.erasereputation()
+
+
+
+
+	if rr.eraseconfirm == true then
+	
+		rrplayerdata = {}	
+		for players, voters in pairs(rrvotes) do
+			for voters, value in pairs(rrvotes[players]) do
+				if voters ~= Inspect.Unit.Detail("player") 
+				then
+					rrvotes[players][voters] = nil
+				end
+			end
+		end
+		rrvoterdata = {}
+		
+		print("All saved reputations Erased! /reloadui to see changes.")
+		rr.eraseconfirm = false
+	else
+	print("Warning! This will erase all saved reputations that you have recieved from other people!")
+	print("type /rr erasereputations again to confirm.")
+	rr.eraseconfirm = true
+	end
+end
+
+function rr.erasesettings()
+
+
+
+
+	if rr.eraseconfirm == true then
+	
+		rrsettings = {}
+
+		print("All UI settings Erased! /reloadui to see changes.")
+		rr.eraseconfirm = false
+	else
+	print("Warning! This will set your UI settings back to defaults!")
+	print("type /rr eraseUIsettings again to confirm.")
+	rr.eraseconfirm = true
+	end
+end
+
+function rr.erase()
+
+	if rr.eraseconfirm == true then
+	
 		rrplayerdata = {}		
 		rrvotes = {}
 		rrvoterdata = {}
@@ -516,11 +670,11 @@ function rr.erase()
 		RiftReputation_playerdata = ""
 		RiftReputation_voterdata = ""
 		RiftReputation_votes = ""
-		print("All Data Erased")
+		print("All your data Erased! /reloadui to see changes.")
 		rr.eraseconfirm = false
 	else
-	print("Warning! This will erase all your data!")
-	print("type /rr erase again to confirm.")
+	print("Warning! This will erase ALL your data, votes, and settings back to defaults!")
+	print("type /rr eraseall again to confirm.")
 	rr.eraseconfirm = true
 	end
 end
@@ -1162,6 +1316,7 @@ function rr.ui.update()
 				barxoffset = 110 * ((.5 * rrplayerdata[target].neutralpercent) + rrplayerdata[target].uppercent)
 				votes = (rrplayerdata[target].numuprecieved + rrplayerdata[target].numdownrecieved + rrplayerdata[target].numneutralrecieved - 3)
 				if votes < 0 then votes = 0 end
+				if not (barxoffset > 0 or barxoffset < 110) then barxoffset = 55 end
 			end	
 				rr.ui.targetvotesframe:SetText("Total Votes: " .. votes)
 				rr.ui.barindicator:SetPoint("CENTER", rr.ui.barbackground, "CENTERLEFT", barxoffset, 0)
